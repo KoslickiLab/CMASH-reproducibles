@@ -1,0 +1,8 @@
+name: CAMISIM_py27
+channels:
+  - defaults
+dependencies:
+  - python=2.7
+  - conda:
+      - biopython==1.76
+      - biom-format==2.1.7
