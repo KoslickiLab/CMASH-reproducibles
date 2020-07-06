@@ -3,19 +3,19 @@ For reproducibility of [Cmash](https://github.com/dkoslicki/CMash) tasks/issues:
 1. [K-mer truncation](https://github.com/dkoslicki/CMash/issues/20)
 
 ## Install dependencies  
-1. [miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
-2. CMash environment  
-Git clone CMash +  [yml file](https://github.com/dkoslicki/CMash/blob/master/tests/CMash-env-Ubuntu-18.05.yml) + seaborn
-3. CAMISIM environment (for non-Docker usage)
-Git clone CAMISIM + py27 conda env + biopython + biom-format
+1. Install conda or [miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) (version >= 4.6)  
+2. Clone this repo
+```
+git clone https://github.com/KoslickiLab/CMASH-reproducibles.git
+```
+3. Go to "src" folder, run cmd `bash install_dependency.sh`. This will install all necessary tools and download needed reources, it may take around 5min. To specify location for Conda environment instead of the default location, please add `-p <abs_path_to_folder>` with this cmd.  
 
 ## Reproducibility
-1. To reproduce reuslts of task1 (kmer truncation), please:
-   - clone this repo and install all dependencies  
-   - go to folder "CMASH-reproducibles/src"  
-   - run script "task1_kmer_truncation.sh" by:  
+1. To reproduce reuslts of task1 (kmer truncation), please:  
+   - go to folder "task1_k-mer_truncation/example"
+   - run the script in "src" folder (you may use -h to see the help information):  
    ```
-   bash task1_kmer_truncation.sh -m <conda_path> -r <ref_file> -q <query_file> ...
+   bash <path_2_src_folder>/rep1_main_kmer_truncation.sh -q meta_high_CI.txt  -r ref_high_CI.txt -k 60 -c 5-60-5 -d <absolute_path_2_conda_folder> -g <absolute_path_2_this_repo>
    ```
 
 ## Task1: how would truncation of long k-mers affect containment index?
