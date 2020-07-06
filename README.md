@@ -8,7 +8,7 @@ For reproducibility of [Cmash](https://github.com/dkoslicki/CMash) tasks/issues:
 ```
 git clone https://github.com/KoslickiLab/CMASH-reproducibles.git
 ```
-3. Go to "src" folder, run cmd `bash install_dependency.sh`. This will install all necessary tools and download needed reources, it may take around 5min. To specify location for Conda environment instead of the default location, please add `-p <abs_path_to_folder>` with this cmd.  
+3. Go to "src" folder, run cmd `bash install_dependency.sh`. This will install all necessary tools and download needed reources in the "src" folder, it may take several minuates. To specify location for Conda environment instead of the default location, please add `-p <abs_path_to_folder>` with this cmd, or add `-p default` to install them in the original conda folder.  
 
 ## Reproducibility
 1. To reproduce reuslts of task1 (kmer truncation), please:  

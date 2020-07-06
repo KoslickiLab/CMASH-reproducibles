@@ -114,7 +114,7 @@ for file in $(cat query_path.txt); do
   cat $file >> BBMap_simu/merged_all.fa 
 done
 cd BBMap_simu
-ltime bash ${repo}/src/bbmap/randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome 
+${ltime} bash ${repo}/src/bbmap/randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome 
 readlink -f BBMap_simulated_meta_3x.fq > ../bb_meta_path.txt
 cd ..
 
@@ -154,9 +154,10 @@ sed -i 's/ncbi-taxonomy_20170222.tar.gz/ncbi-taxonomy_20200705.tar.gz/g' new_min
 cp new* ${repo}/src/CAMISIM/defaults/
 cd ${repo}/src/CAMISIM/
 ### activate conda env
+. ${conda_path}/etc/profile.d/conda.sh
 cami=$(grep "Env_for_CAMISIM" ${repo}/src/source.txt | cut -f 2)
 conda activate $cami
-ltime python metagenomesimulation.py defaults/new_miniconfig.ini
+${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini
 conda deactivate
 mv temp_runLog ${workdir}/CAMISIM_simu
 mv out ${workdir}/CAMISIM_simu
@@ -181,4 +182,3 @@ date
 echo "whole pipe done"
 
   
-

@@ -19,7 +19,8 @@ Install dependencies for CMASH-reproducible analysis.
 Usage: bash <pipe.sh>
 
 Options:
-		-p: optional, specify the location to store the Conda environment
+		-p: optional, specify the location to store the Conda environment, default is the "src" folder
+			If you want to put them in the default conda folder, use "-p default"
 		-h: help information
 "
 exit;;
@@ -34,13 +35,15 @@ repo=$(echo ${pipe_path%/src})
 
 ###### Build Conda Env
 # in case the channel is missing
-conda config --add channels conda-forge
+conda config --append channels conda-forge
+conda config --append channels bioconda
 
 # write env path 
 date > ${repo}/src/source.txt 
+[ -z "$conda_env_path" ] && conda_env_path=${pipe_path}
 
 # build env
-if [ -z "$conda_env_path" ]; then
+if [ "$conda_env_path" == "default" ]; then
 	# Install CMash-Env
 	echo "Building environment for CMash"
 	conda env create -f ${repo}/src/CMash_env.yml \
