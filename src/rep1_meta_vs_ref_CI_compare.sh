@@ -21,7 +21,7 @@ do
 		h) echo "
 Calculate the containment index (CI) change between query data and ref data with specified k-mer size.
 
-Usage: bash <pipe.sh> -q <query_file> -r <ref> -k <max_k> -c <kmer_range> -g <CMash_repo> -d <conda_path>
+Usage: bash <pipe.sh> -q <query> -r <ref> -k <max_k> -c <kmer_range> -g <CMash_repo> -d <conda_path>
 
 Options:
 -q: query file, a txt file with the absolute path of the input metagenome data
@@ -43,7 +43,7 @@ done
 
 ### check input parameter
 if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$maxk" ] || [ -z "$input_range" ] || [ -z "$CMash" ] || [ -z "$conda_path" ] || [ -z "$cmash" ]; then
-	echo "Missing input parameter!!!"
+echo "Missing input parameter!!!"
 	exit 1
 fi
 query=$(readlink -f $query)
@@ -67,7 +67,7 @@ temp_range=${r_adj_start}-${r_end}-${r_gap}
 conda activate $cmash
 ltime="/usr/bin/time -av -o temp_runLog"
 pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
-summary_code="${pipe_path}/rep1_CI_compare.py"
+summary_code="${pipe_path}/rep1_summary.py"
 # test CMash python env match
 export PYTHONPATH=${CMash}:$PYTHONPATH
 testFile=$(python -c "from CMash import MinHash as MH; print(MH.__file__)")
@@ -99,7 +99,7 @@ cd ..
 # Step2, truncated CI for all k-point
 mkdir truncated_CI
 cd truncated_CI
-for file in `cat ${query_file}`
+for file in `cat ${query}`
 do
 	echo $file
 	name=`echo ${file##*/}`
@@ -112,7 +112,7 @@ cd ..
 for i in $(seq ${r_adj_start} ${r_gap} ${maxk})
 do
 	echo "running on k ${i}"
-	for file in `cat ${query_file}`
+	for file in `cat ${query}`
 	do
 		echo $file
 		name=`echo ${file##*/}`
@@ -133,7 +133,7 @@ mv estimated_CI_k* estimated_CI
 
 # Step4, summaize results by py
 mkdir summary
-python ${summary_code} ${temp_range} ${query_file}
+python ${summary_code} ${temp_range} ${query}
 
 conda deactivate
 echo "whole pipe done"

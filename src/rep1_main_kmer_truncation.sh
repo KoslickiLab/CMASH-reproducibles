@@ -122,7 +122,7 @@ for file in $(cat query_path.txt); do
   cat $file >> BBMap_simu/merged_all.fa 
 done
 cd BBMap_simu
-${ltime} bash ${repo}/src/bbmap/randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome 
+${ltime} bash ${repo}/src/bbmap/randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome  &>  running_record_BBMap.log
 readlink -f BBMap_simulated_meta_3x.fq > ../bb_meta_path.txt
 cd ..
 
@@ -165,9 +165,10 @@ cd ${repo}/src/CAMISIM/
 . ${conda_path}/etc/profile.d/conda.sh
 cami=$(grep "Env_for_CAMISIM" ${repo}/src/source.txt | cut -f 2)
 conda activate $cami
-${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini
+${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini  &> running_record_CAMISIM.log
 conda deactivate
 mv temp_runLog ${workdir}/CAMISIM_simu
+mv running_record_CAMISIM.log ${workdir}/CAMISIM_simu
 mv out ${workdir}/CAMISIM_simu
 cd ${workdir}/CAMISIM_simu/out
 # merge camisim output files
@@ -182,8 +183,8 @@ cd ../..
 # it is an independent bash script and called here
 cd ${workdir}
 cmash=$(grep "Env_for_CMash" ${repo}/src/source.txt | cut -f 2)
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}  &> CMash_BBMap.log
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads} &> CMash_CAMISIM.log
 
 
 date
