@@ -15,7 +15,7 @@ git clone https://github.com/KoslickiLab/CMASH-reproducibles.git
    - go to folder "task1_k-mer_truncation/example"
    - run the script in "src" folder (you may use -h to see the help information):  
    ```
-   bash <path_2_pipe>/rep1_main_kmer_truncation.sh -q meta_high_CI.txt  -r ref_high_CI.txt -k 60 -c 5-60-5 -d <path_2_conda_folder>
+   bash ../../src/rep1_main_kmer_truncation.sh -q meta_high_CI.txt  -r ref_high_CI.txt -k 60 -c 5-60-5 -d <path_2_conda_main_folder>
    ```
 
 ## Task1: how would truncation of long k-mers affect containment index?

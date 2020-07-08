@@ -183,8 +183,8 @@ cd ../..
 # it is an independent bash script and called here
 cd ${workdir}
 cmash=$(grep "Env_for_CMash" ${repo}/src/source.txt | cut -f 2)
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}  &> CMash_BBMap.log
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k 60 -c 5-60-5 -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads} &> CMash_CAMISIM.log
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}  &> CMash_BBMap.log
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads} &> CMash_CAMISIM.log
 
 
 date
