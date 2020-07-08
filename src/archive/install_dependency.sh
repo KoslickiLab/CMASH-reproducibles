@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.0, last update 07/08/2020
 # Install dependencies for CMash reproducible analysis
 # Only need to run once
 ######
@@ -36,8 +35,8 @@ repo=$(echo ${pipe_path%/src})
 
 ###### Build Conda Env
 # in case the channel is missing
-[ $(conda info | grep conda-forge | wc -l) -eq 0 ]  && conda config --append channels conda-forge
-[ $(conda info | grep bioconda | wc -l) -eq 0 ]  && conda config --append channels bioconda
+conda config --append channels conda-forge
+conda config --append channels bioconda
 
 # write env path 
 date > ${repo}/src/source.txt 

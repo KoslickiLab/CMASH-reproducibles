@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.0, last update 07/08/2020
 # 1 or more metagenomes vs ref file for GroundTruth / Estimated / Truncated CIs
 
 ######################################################################################################
@@ -13,8 +12,8 @@ do
 		r) ref="$OPTARG";;			# ref file
 		k) maxk="$OPTARG";;			# max size of k-mer
 		c) input_range="$OPTARG";;		# range of size to check, format: start-end-gap
-		g) CMash="$OPTARG";;			# path to the CMash repo
-		d) conda_path="$OPTARG";;	# conda path
+		g) CMash="$OPTARG";;			# absolute path to the CMash repo
+		d) conda_path="$OPTARG";;	# abs conda path
 		t) threads="$OPTARG";;		# thread number
 		n) num_hashes="$OPTARG";;	# hash function number
 		e) cmash="$OPTARG";;		# cmash environment to use
@@ -31,8 +30,6 @@ Options:
 	e.g. 10-30-5 means sizes of k-mer to check are 10,15,20,25,30
 -g: absolute path to the github repo "CMASH"
 -d: absolute path to the conda folder, this is used to activate conda env inside bash script
--t: number of threads to use for CMash analysis, default 48
--n: number of hashes functions to use in CMash, default 2000
 -h: help information
 "
 exit;;
@@ -48,8 +45,6 @@ if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$maxk" ] || [ -z "$input_range" ] |
 fi
 query=$(readlink -f $query)
 ref=$(readlink -f $ref)
-conda_path=$(readlink -f $conda_path)
-CMash=$(readlink -f $CMash)
 
 [ -z "$threads" ] && threads=48
 [ -z "$num_hashes" ] && num_hashes=2000
