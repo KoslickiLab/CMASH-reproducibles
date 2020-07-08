@@ -188,6 +188,7 @@ bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_pat
 
 
 date
+date >> running_record.log
 echo "whole pipe done"
 
   
