@@ -68,6 +68,14 @@ if sum(merged_est_CI.index == merged_truncat_CI.index) != np.shape(merged_trunca
     sys.exit("Rows do not match, please double check the data")
 
 ### go to plot
+# CI change box plot
+def label_median(df, ax):
+    medians=df.median()
+    vertical_offset = max(medians.median(), 0.005)
+    for xtick in ax.get_xticks():
+        ax.text(xtick, medians[xtick] + vertical_offset, round(medians[xtick], 3), horizontalalignment='center',
+                size='x-small', color='navy', weight='semibold')
+
 # for each metagenome data, the col and row were already matched so we can substract/divide the dataframe element-wise directly
 for line in query_list: #single plot for each metagenome
 	name=line.split("/")[-1]
@@ -111,7 +119,8 @@ for line in query_list: #single plot for each metagenome
 	axs3.legend(handles=legend_element, loc='best')
 	fig3.suptitle("Merged Swarmplot")
 	fig3.savefig("Merged_swarmplot_of_"+name+".png", dpi=200)
-	# dif plot, temp_gt.min = 0.00003
+	plt.close(fig3)
+        # dif plot, temp_gt.min = 0.00003
 	dif_trc_gt = temp_trc - temp_gt
 	pdif_trc_gt = dif_trc_gt / (temp_gt+0.0000001)
 	dif_est_gt = temp_est - temp_gt
@@ -132,7 +141,23 @@ for line in query_list: #single plot for each metagenome
 	axs4[0,1].title.set_text("Change by ratio")
 	fig4.suptitle("Pairwise comparison")
 	fig4.savefig("Pairwise_comparison_of_"+name+".png", dpi=200)
-	plt.close('all')
+	plt.close(fig4)
+	# boxplot of CI change: truncated vs groundtruth
+	fig5, axs = plt.subplots(3, figsize=(9, 9))
+	fig5.suptitle("Boxplot of CI dif")
+	sb.boxplot(data=dif_trc_gt, color="red", ax=axs[0])
+	label_median(dif_trc_gt, axs[0])
+	sb.boxplot(data=dif_est_gt, color="cyan", ax=axs[1])
+	label_median(dif_est_gt, axs[1])
+	sb.boxplot(data=dif_trc_est, color="orange", ax=axs[2])
+	label_median(dif_trc_est, axs[2])
+	axs[0].set(ylabel="Truncated-Groundtruth")
+	axs[1].set(ylabel="Estimated-Groundtruth")
+	axs[2].set(ylabel="Truncated-Estimated")
+	fig5.tight_layout(rect=[0, 0.03, 1, 0.9])
+	fig5.savefig("Boxplot_of_CI_dif_"+name+".png", dpi=300)
+	plt.close(fig5)
+
 
 
 
