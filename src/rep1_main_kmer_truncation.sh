@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.0, last update 07/08/2020
+# v1.01, last update 07/19/2020
 # Taking 2 files containing the absolute path for geneome data as query / ref data, estimate the CI change between GroundTruth CI, Estimated CI and Truncated CI
 # Input parameters:
 #	1. query file: names of species from NCBI GenBank database, e.g. GCA_002786755.1_ASM278675v1
@@ -31,7 +31,7 @@ do
 		h) echo "
 Calculate the containment index (CI) change between query data and ref data with specified k-mer size.
 
-Usage: bash <pipe.sh> -q <query_file> -r <ref_file> -k <max_k> -c <kmer_range> -g <git_repo> -d <conda_path>
+Usage: bash <pipe.sh> -q <query_file> -r <ref_file> -k <max_k> -c <kmer_range>
 
 Options:
 -q: query file, a txt file with each line containing the name of one COMPLETE genome file from GenBank, 
@@ -41,7 +41,7 @@ Options:
 -k: max size of k-mer used in the analysis
 -c: range of k-mer size to check, must in start-end-gap format, the starting poing would be adjusted if the gap is not a divisor of the range,
 	e.g. 10-30-5 means sizes of k-mer to check are 10,15,20,25,30
--d: absolute path to the conda folder, this is used to activate conda env inside bash script
+-d: path to the main conda folder (not the bin folder), e.g. ~/user/miniconda3 
 -t: number of threads to use for CMash analysis, default 48
 -h: help information
 "
@@ -51,43 +51,60 @@ exit;;
 esac
 done
 
+
+
 pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
 repo=$(echo ${pipe_path%/src})
 
-# check input parameter
-if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$maxk" ] || [ -z "$range" ] || [ -z "$repo" ] || [ -z "$conda_path" ]; then
+
+
+### temporary usage to check the main conda path
+if [ -z "$conda_path" ]; then
+	temp=$(which conda) 
+	conda_path=$(echo ${temp%/*bin/conda})
+	if [ -f ${conda_path}/etc/profile.d/conda.sh ]; then
+		. ${conda_path}/etc/profile.d/conda.sh
+	else
+		echo "ERROR: conda path can't be corrected identified!!!"
+		exit 1
+	fi
+fi
+
+
+### check input parameter
+if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$maxk" ] || [ -z "$range" ] || [ -z "$repo" ]; then
 	echo "Missing input parameter!!!"
 	exit 1
 fi
-
 [ -z "$threads"] && threads=48
 
-# convert path to absolute path
+
+### convert path to absolute path
 query=$(readlink -f $query)
 ref=$(readlink -f $ref)
 conda_path=$(readlink -f $conda_path)
 
-# read prepared information
+
+### read prepared information
 gb_ref=${repo}/src/NCBI_GenBank_bacteria_assembly_summary.txt
 gb_download=${repo}/src/NCBI_GenBank_download_link.txt
 
-# other var
-ltime="/usr/bin/time -av -o temp_runLog"
 
+### other var
+ltime="/usr/bin/time -av -o temp_runLog"
 
 
 
 ######################################################################################################
 ###### Data preparation
-
-
 # output dir
 time_tag=`date +"%m_%d_%H-%M"`
 mkdir output_${time_tag}
 cd output_${time_tag}
 date > running_record.log
-echo -e "\nInput files:\nQuery\t$query\nRef\t$ref\nGithub_repo\t$repo\nmaxk\t$maxk\nrange\t$range\n\n" >> running_record.log
+echo -e "\nInput files:\nQuery\t$query\nRef\t$ref\nGithub_repo\t$repo\nConda_path\t$conda_path\nmaxk\t$maxk\nrange\t$range\n\n" >> running_record.log
 workdir=${PWD}
+
 
 # download query genomes, while CAMISIM can't handle gz file, unzip all fna.gz
 mkdir raw_query
@@ -116,13 +133,15 @@ find ${PWD} -name "*_genomic.fna.gz" > ../ref_path.txt
 cd ..
 
 
+### Run simulation based on BBMAP / CAMISIM
+conda activate ${pipe_path}/Simulation_Env_py27
 # BBMap simulation
 mkdir BBMap_simu
 for file in $(cat query_path.txt); do
   cat $file >> BBMap_simu/merged_all.fa 
 done
 cd BBMap_simu
-${ltime} bash ${repo}/src/bbmap/randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome  &>  running_record_BBMap.log
+${ltime} randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome  &>  running_record_BBMap.log
 readlink -f BBMap_simulated_meta_3x.fq > ../bb_meta_path.txt
 cd ..
 
@@ -159,12 +178,9 @@ sed -i 's/genome_to_id.tsv/new_genome_to_id.tsv/g' new_miniconfig.ini
 sed -i "s/genomes_total=24/genomes_total=$genome_num/g" new_miniconfig.ini
 sed -i "s/genomes_real=24/genomes_real=$genome_num/g" new_miniconfig.ini
 sed -i 's/ncbi-taxonomy_20170222.tar.gz/ncbi-taxonomy_20200705.tar.gz/g' new_miniconfig.ini
+sed -i 's#tools/samtools-1.3/samtools#../Simulation_Env_py27/bin/samtools#g' new_miniconfig.ini
 cp new* ${repo}/src/CAMISIM/defaults/
 cd ${repo}/src/CAMISIM/
-### activate conda env
-. ${conda_path}/etc/profile.d/conda.sh
-cami=$(grep "Env_for_CAMISIM" ${repo}/src/source.txt | cut -f 2)
-conda activate $cami
 ${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini  &> running_record_CAMISIM.log
 conda deactivate
 mv temp_runLog ${workdir}/CAMISIM_simu
@@ -182,10 +198,11 @@ cd ../..
 # while the running task for metagenome against ref is an independent task and would be used frequently
 # it is an independent bash script and called here
 cd ${workdir}
-cmash=$(grep "Env_for_CMash" ${repo}/src/source.txt | cut -f 2)
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads}  &> CMash_BBMap.log
-bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -g ${repo}/src/CMash -d ${conda_path} -e ${cmash} -t ${threads} &> CMash_CAMISIM.log
-
+#conda activate ${pipe_path}/CMASH_Env_py37
+conda activate ${pipe_path}/temp_CMash_py38
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
+bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log
+conda deactivate
 
 date
 date >> running_record.log

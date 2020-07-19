@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.0, last update 07/08/2020
+# v1.01, last update 07/19/2020. 
 # Install dependencies for CMash reproducible analysis
 # Only need to run once
 ######
@@ -9,76 +9,54 @@
 
 
 date
-###### read parameters
-while getopts p:h opts
-do
-	case "$opts" in
-		p) conda_env_path="$OPTARG";;	# optional, conda env storage location if needed
-		h) echo "
-Install dependencies for CMASH-reproducible analysis.
+### conda path: put this cmd out to switch to standard example 
+temp=$(which conda) 
+conda_path=$(echo ${temp%/*bin/conda})
+if [ -f ${conda_path}/etc/profile.d/conda.sh ]; then
+	. ${conda_path}/etc/profile.d/conda.sh
+else
+	echo "ERROR: conda path can't be corrected identified!!!"
+	exit 1
+fi
 
-Usage: bash <pipe.sh>
 
-Options:
-		-p: optional, specify the location to store the Conda environment, default is the "src" folder
-			If you want to put them in the default conda folder, use "-p default"
-		-h: help information
-"
-exit;;
-[?]) echo "use -h for help"
-exit;;
-esac
-done
 
+### get paths for pipe
 pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
 repo=$(echo ${pipe_path%/src})
 
 
-###### Build Conda Env
-# in case the channel is missing
-[ $(conda info | grep conda-forge | wc -l) -eq 0 ]  && conda config --append channels conda-forge
-[ $(conda info | grep bioconda | wc -l) -eq 0 ]  && conda config --append channels bioconda
 
-# write env path 
-date > ${repo}/src/source.txt 
-[ -z "$conda_env_path" ] && conda_env_path=${pipe_path}
+### TEMP: add the py38 CMash to run "GroundTruth.py"
+conda env create -p ${pipe_path}/temp_CMash_py38 -f ${pipe_path}/CMash_env.yml
 
-# build env
-if [ "$conda_env_path" == "default" ]; then
-	# Install CMash-Env
-	echo "Building environment for CMash"
-	conda env create -f ${repo}/src/CMash_env.yml \
-	&& echo -e "Env_for_CMash\tCMash_env" >> ${repo}/src/source.txt
-	# Install CAMISIM-Env
-	echo "Building environment for CAMISIM"
-	conda env create -f ${repo}/src/CAMISIM_env.yml \
-	&& echo -e "Env_for_CAMISIM\tCAMISIM_env" >> ${repo}/src/source.txt
-else
-	# Install CMash-Env
-	echo "Building environment for CMash"
-	conda env create -p ${conda_env_path}/CMash-env -f ${repo}/src/CMash_env.yml \
-	&& echo -e "Env_for_CMash\t${conda_env_path}/CMash-env" >> ${repo}/src/source.txt
-	# Install CAMISIM-Env
-	echo "Building environment for CAMISIM"
-	conda env create -p ${conda_env_path}/CAMISIM-env -f ${repo}/src/CAMISIM_env.yml \
-	&& echo -e "Env_for_CAMISIM\t${conda_env_path}/CAMISIM-env" >> ${repo}/src/source.txt
-fi
-echo " " >> ${repo}/src/source.txt
+
+### build CMash conda env to run CMash analysis
+conda create -y -p ${pipe_path}/CMASH_Env_py37 python=3.7
+conda activate ${pipe_path}/CMASH_Env_py37
+conda install -y -c bioconda cmash
+conda install -y -c anaconda seaborn
+conda deactivate
 
 
 
-###### Download the NCBI GenBank bacteria database
+### build CAMISIM (must be py27) to run CAMISIM + BBMAP
+conda create -y -p ${pipe_path}/Simulation_Env_py27 python=2.7
+conda install -y -c bioconda samtools
+conda install -y -c bioconda bbmap
+conda install -y -c anaconda biopython
+conda deactivate
+
+
+
+### download the NCBI GenBank bacteria database
 wget -O ${repo}/src/NCBI_GenBank_bacteria_assembly_summary.txt  ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt
 cd ${repo}/src
 awk -F '\t'  '{if($12=="Complete Genome" && $11=="latest") print $20}' NCBI_GenBank_bacteria_assembly_summary.txt > NCBI_GenBank_download_link.txt
 
 
-###### Download CMash
-git clone https://github.com/dkoslicki/CMash.git
 
-
-###### Prepare CAMISIM and BBMap
-# CAMISIM
+### download CAMISIM
 git clone https://github.com/CAMI-challenge/CAMISIM.git
 # add new taxdamp file 
 ### this may not always work due to the structure change of the original file
@@ -91,15 +69,6 @@ cd NCBI
 tar -xzf ncbi-taxonomy_20200705.tar.gz && rm ncbi-taxonomy_20200705.tar.gz
 cd ..
 tar -zcvf ncbi-taxonomy_20200705.tar.gz NCBI
-
-# BBMAP 38.86
-cd ${repo}/src
-wget —referer https://sourceforge.net/projects/bbmap/files/BBMap_38.86.tar.gz/download 
-mv download BBMap_38.86.tar.gz \
-	&& tar -xvzf  BBMap_38.86.tar.gz \
-	&& rm BBMap_38.86.tar.gz \
-	&& rm index.html 2>/dev/null
-	
 
 
 
