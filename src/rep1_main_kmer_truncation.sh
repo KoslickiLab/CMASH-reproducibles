@@ -202,9 +202,9 @@ cd ${workdir}
 #conda activate ${pipe_path}/CMASH_Env_py37
 conda activate ${pipe_path}/temp_CMash_py38
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
-mv CMash_output_* CMash_output_BBMap
+mv CMash_output_* Result_BBMap
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log
-mv CMash_output_* CMash_output_CAMISIM
+mv CMash_output_* Result_CAMISIM
 conda deactivate
 
 date
