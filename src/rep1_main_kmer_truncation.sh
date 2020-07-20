@@ -199,8 +199,7 @@ fi
 # while the running task for metagenome against ref is an independent task and would be used frequently
 # it is an independent bash script and called here
 cd ${workdir}
-#conda activate ${pipe_path}/CMASH_Env_py37
-conda activate ${pipe_path}/temp_CMash_py38
+conda activate ${pipe_path}/CMASH_Env_py37
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
 mv CMash_output_* Result_BBMap
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log

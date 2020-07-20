@@ -27,13 +27,6 @@ repo=$(echo ${pipe_path%/src})
 
 
 
-### TEMP: add the py38 CMash to run "GroundTruth.py"
-conda env create -p ${pipe_path}/temp_CMash_py38 -f ${pipe_path}/CMash_env.yml
-conda activate ${pipe_path}/temp_CMash_py38
-conda install -y -c bioconda cmash
-conda deactivate
-
-
 ### build CMash conda env to run CMash analysis
 conda create -y -p ${pipe_path}/CMASH_Env_py37 python=3.7
 conda activate ${pipe_path}/CMASH_Env_py37
