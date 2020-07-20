@@ -181,18 +181,19 @@ sed -i 's/ncbi-taxonomy_20170222.tar.gz/ncbi-taxonomy_20200705.tar.gz/g' new_min
 sed -i 's#tools/samtools-1.3/samtools#../Simulation_Env_py27/bin/samtools#g' new_miniconfig.ini
 cp new* ${repo}/src/CAMISIM/defaults/
 cd ${repo}/src/CAMISIM/
-${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini  &> running_record_CAMISIM.log
-conda deactivate
+${ltime} python metagenomesimulation.py defaults/new_miniconfig.ini  &> running_record_CAMISIM.log 
 mv temp_runLog ${workdir}/CAMISIM_simu
 mv running_record_CAMISIM.log ${workdir}/CAMISIM_simu
-mv out ${workdir}/CAMISIM_simu
-cd ${workdir}/CAMISIM_simu/out
-# merge camisim output files
-for file in $(find . -name "anonymous_reads.fq.gz"); do
-	cat $file >> merged_CAMISIM_anonymous.fq.gz
-done
-readlink -f merged_CAMISIM_anonymous.fq.gz > ../../cami_meta_path.txt
-cd ../..
+conda deactivate
+if [ -d "out" ]; then
+	mv out ${workdir}/CAMISIM_simu
+	cd ${workdir}/CAMISIM_simu/out
+	for file in $(find . -name "anonymous_reads.fq.gz"); do
+		cat $file >> merged_CAMISIM_anonymous.fq.gz
+	done
+	readlink -f merged_CAMISIM_anonymous.fq.gz > ../../cami_meta_path.txt
+fi
+
 
 ###### Run CMash
 # while the running task for metagenome against ref is an independent task and would be used frequently
@@ -201,7 +202,9 @@ cd ${workdir}
 #conda activate ${pipe_path}/CMASH_Env_py37
 conda activate ${pipe_path}/temp_CMash_py38
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
+mv CMash_output_* CMash_output_BBMap
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log
+mv CMash_output_* CMash_output_CAMISIM
 conda deactivate
 
 date

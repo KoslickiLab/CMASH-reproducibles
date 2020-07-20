@@ -93,8 +93,9 @@ cd ..
 # Step3, estimated CI and ground truth CI
 ### currently GT.py hasn't been added to the PATH
 temp=$(which StreamingQueryDNADatabase.py)
+temp=$(readlink -f $temp)
 env_dir=$(echo ${temp%/bin/StreamingQueryDNADatabase.py})
-gt_py=$(find $env_dir -name "GroundTruth.py")
+gt_py=$(find $env_dir -name "GroundTruth.py" | grep "CMASH_Env_py37" | head -1) # incease multiple matches during code adjustment
 
 for i in $(seq ${r_adj_start} ${r_gap} ${maxk})
 do

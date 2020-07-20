@@ -42,7 +42,7 @@ conda deactivate
 
 ### build CAMISIM (must be py27) to run CAMISIM + BBMAP
 conda create -y -p ${pipe_path}/Simulation_Env_py27 python=2.7
-conda install -y -c bioconda samtools
+conda install -y -c bioconda samtools=1.9
 conda install -y -c bioconda bbmap
 conda install -y -c anaconda biopython
 conda deactivate
