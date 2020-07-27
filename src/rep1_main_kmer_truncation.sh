@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.01, last update 07/19/2020
+# v1.02, last update 07/27/2020
 # Taking 2 files containing the absolute path for geneome data as query / ref data, estimate the CI change between GroundTruth CI, Estimated CI and Truncated CI
 # Input parameters:
 #	1. query file: names of species from NCBI GenBank database, e.g. GCA_002786755.1_ASM278675v1
@@ -11,7 +11,12 @@
 #	5. repo: absolute path to the github repo
 #	6. conda path: absolute path to the conda main folder (activate env inside bash)
 # It will create a new folder named "output_M_D_H-M" in the current dir
-######
+#
+#
+# Update history:
+# V1.01: put all possible dependencies into conda env; 
+#		 add uninstall.sh;
+# V1.02: add depth parameter for BBMap (coverage) and CAMISIM (output size / GB)
 
 
 
@@ -19,13 +24,14 @@
 ######################################################################################################
 ###### Setup variables
 date 
-while getopts q:r:k:c:d:t:h opts
+while getopts q:r:k:c:s:d:t:h opts
 do
 	case "$opts" in
 		q) query="$OPTARG";;		# query file
 		r) ref="$OPTARG";;			# ref file
 		k) maxk="$OPTARG";;			# max size of k-mer
 		c) range="$OPTARG";;		# range of size to check, format: start-end-gap
+		s) size="$OPTARG";;			# depth for CAMISIM (output file size / GB), BBMap coverage, default 2
 		d) conda_path="$OPTARG";;	# path to conda
 		t) threads="$OPTARG";;		# thread number for CMash
 		h) echo "
@@ -70,6 +76,9 @@ if [ -z "$conda_path" ]; then
 	fi
 fi
 
+### check depth
+[ -z "$size" ] && size=2
+
 
 ### check input parameter
 if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$maxk" ] || [ -z "$range" ] || [ -z "$repo" ]; then
@@ -102,7 +111,7 @@ time_tag=`date +"%m_%d_%H-%M"`
 mkdir output_${time_tag}
 cd output_${time_tag}
 date > running_record.log
-echo -e "\nInput files:\nQuery\t$query\nRef\t$ref\nGithub_repo\t$repo\nConda_path\t$conda_path\nmaxk\t$maxk\nrange\t$range\n\n" >> running_record.log
+echo -e "\nInput files:\nQuery\t$query\nRef\t$ref\nGithub_repo\t$repo\nConda_path\t$conda_path\nmaxk\t$maxk\nrange\t$range\ncoverage(depth)\t$size\n\n" >> running_record.log
 workdir=${PWD}
 
 
@@ -141,7 +150,7 @@ for file in $(cat query_path.txt); do
   cat $file >> BBMap_simu/merged_all.fa 
 done
 cd BBMap_simu
-${ltime} randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=3 len=150 metagenome  &>  running_record_BBMap.log
+${ltime} randomreads.sh ref=merged_all.fa out=BBMap_simulated_meta_3x.fq coverage=${size} len=150 metagenome  &>  running_record_BBMap.log
 readlink -f BBMap_simulated_meta_3x.fq > ../bb_meta_path.txt
 cd ..
 
@@ -172,7 +181,8 @@ cp ${repo}/src/CAMISIM/defaults/mini_config.ini new_miniconfig.ini
 mv genome_to_id.tsv new_genome_to_id.tsv
 mv metadata.tsv new_metadata.tsv
 # replace corresponding values in the config file
-sed -i 's/size=0.1/size=0.2/g' new_miniconfig.ini
+cami_size=$(awk "BEGIN {print ${size}/10}")
+sed -i "s/size=0.1/size=$cami_size/g" new_miniconfig.ini
 sed -i 's/metadata.tsv/new_metadata.tsv/g' new_miniconfig.ini
 sed -i 's/genome_to_id.tsv/new_genome_to_id.tsv/g' new_miniconfig.ini
 sed -i "s/genomes_total=24/genomes_total=$genome_num/g" new_miniconfig.ini
@@ -201,28 +211,13 @@ fi
 cd ${workdir}
 conda activate ${pipe_path}/CMASH_Env_py37
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
-mv CMash_output_* Result_BBMap
+mv CMash_output_* CMash_output_BBMap
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log
-mv CMash_output_* Result_CAMISIM
+mv CMash_output_* CMash_output_CAMISIM
 conda deactivate
 
 date
 date >> running_record.log
 echo "whole pipe done"
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -4,6 +4,10 @@
 # v1.01, last update 07/19/2020
 # 1 or more metagenomes vs ref file for GroundTruth / Estimated / Truncated CIs
 # now need to activate the CMash Env in advance to run this pipe!!!
+# 
+# Update history:
+# V1.01: put all possible dependencies into conda env
+
 
 ######################################################################################################
 ###### Setup variables
