@@ -1,10 +1,13 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.01, last update 07/19/2020. 
+# v1.02, last update 07/27/2020. 
 # Install dependencies for CMash reproducible analysis
 # Only need to run once
-######
+#
+# Update history:
+# V1.01: put all dependencies into conda env
+# V1.02: add kmc to fix "groundtruth.py" script
 
 
 
@@ -32,6 +35,7 @@ conda create -y -p ${pipe_path}/CMASH_Env_py37 python=3.7
 conda activate ${pipe_path}/CMASH_Env_py37
 conda install -y -c bioconda cmash
 conda install -y -c anaconda seaborn
+conda install -y -c bioconda kmc
 conda deactivate
 
 
