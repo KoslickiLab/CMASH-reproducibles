@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###### Pipeline information:
-# v1.02, last update 07/27/2020
+# v1.02, last update 07/29/2020
 # Taking 2 files containing the absolute path for geneome data as query / ref data, estimate the CI change between GroundTruth CI, Estimated CI and Truncated CI
 # Input parameters:
 #	1. query file: names of species from NCBI GenBank database, e.g. GCA_002786755.1_ASM278675v1
@@ -211,13 +211,13 @@ fi
 cd ${workdir}
 conda activate ${pipe_path}/CMASH_Env_py37
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q bb_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range}  -t ${threads}  &> CMash_BBMap.log
-mv CMash_output_* CMash_output_BBMap
+mv CMash_output_* Output_CMash_BBMap
 bash ${repo}/src/rep1_meta_vs_ref_CI_compare.sh -q cami_meta_path.txt -r ref_path.txt -k ${maxk} -c ${range} -t ${threads} &> CMash_CAMISIM.log
-mv CMash_output_* CMash_output_CAMISIM
+mv CMash_output_* Output_CMash_CAMISIM
 conda deactivate
 
 date
 date >> running_record.log
 echo "whole pipe done"
 
-
+  
