@@ -3,13 +3,13 @@
 
 ### Setup variable
 date
-while getopts q:r:c:s:t:d:ah opts
+while getopts q:r:c:n:t:d:ah opts
 do
 	case "$opts" in
 		q) query="$OPTARG";;		# query file containing all abs path
 		r) ref="$OPTARG";;		# ref file containing all abs path
 		c) range="$OPTARG";;		# range of size to check, format: start-end-gap
-		s) scale="$OPTARG";;		# the scaling factor to use, default 2000
+		n) num_hash="$OPTARG";;		# the num_hash to use, default 2000
 		t) threads="$OPTARG";;		# number of threads to use, default 48
 		a) abundance="yes";;		# enable abundance tracking, default is no
 		d) conda_path="$OPTARG";;	# conda path to use
@@ -32,7 +32,7 @@ if [ -z "$query" ] || [ -z "$ref" ] || [ -z "$range" ] || [ -z "$conda_path" ]; 
 	echo "Missing input parameter!!!"
 	exit 1
 fi
-[ -z "$scale" ] && scale=2000
+[ -z "$num_hash" ] && num_hash=2000
 [ -z "$threads" ] && threads=48
 [ -z "$abundance" ] && abun_indicator="" || abun_indicator="--track-abundance" # for abundance option in building signature
 
@@ -65,7 +65,7 @@ cd output_${time_tag}
 ### rename to track the changes if necessary
 # the threads option works for 10x bam files only
 ${ltime} sourmash compute -k ${k_mer_sets} \
-	--scaled ${scale} -p ${threads} ${abun_indicator} \
+	-n ${num_hash} -p ${threads} ${abun_indicator} \
 	-o ref.sig $(cat $ref | paste -s)
 mv temp_runLog record_sourmash_compute_ref.log
 
@@ -76,7 +76,7 @@ for file in $(cat $query); do
 	echo $file
 	name=`echo ${file##*/}`
 	${ltime} sourmash compute -k ${k_mer_sets} \
-		--scaled ${scale} -p ${threads} ${abun_indicator} \
+		-n ${num_hash} -p ${threads} ${abun_indicator} \
 		-o ${name}.sig ${file}
 	mv temp_runLog record_sourmash_compute_${name}.log
 	# do the similarity est at the meantime
