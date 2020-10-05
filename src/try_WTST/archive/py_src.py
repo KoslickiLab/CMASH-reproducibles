@@ -6,9 +6,9 @@ import bisect
 import khmer
 import h5py
 import numpy as np
-import copy
 import multiprocessing
 from multiprocessing import Pool
+
 
 # test import
 def test_run():
@@ -94,7 +94,6 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
     # if a MH value appears only in one list, then min(W(A), W(B)) = 0
     # so we only count the other one if there is no match
     try: #avoid the outofbound error in last round
-        # Note: MinHash is to pick n smallest hash values from AUB, NOT n from A and n from B
         while processed <= min(len(mins1), len(mins2)):
             while mins1[i] < mins2[j]:
                 sum_max += counts1[i] #W(B)=0, so add W(A)
@@ -112,8 +111,6 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
                 j += 1
     except IndexError:
         WJI = sum_min / float(sum_max)
-        print(sum_min)
-        print(sum_max)
         return WJI
 
 # calculate standard JI from previous WJI function by truncting the counts==0
@@ -167,10 +164,14 @@ class CountEstimator(object):
     hash_list: if a pre-defined hash list is required
     rev_comp: use the min(seq, ser_reverse)
     """
-    def __init__(self, n=None, max_prime=9999999999971, ksize=None, input_file_name=None, hash_list=None, rev_comp=True):
+    def __init__(self, n=None, max_prime=None, ksize=None, input_file_name=None, hash_list=None, rev_comp=True):
         if n is None:
             raise Exception
+        if max_prime is None:
+            raise Exception
         if ksize is None:
+            raise Exception
+        if input_file_name is None:
             raise Exception
 
         # read parameters
@@ -186,41 +187,30 @@ class CountEstimator(object):
         self._kmers = [''] * n
         self._true_num_kmers = 0
 
-        # for ground truth calculation
-        self._gt_mins = [self.p]
-        self._gt_counts = [0]
-        self._gt_kmers = ['']
-
         # read sequence by "screed" and load them into the sketch (replace parse_file function in L105)
-        if self.input_file_name:
-            for record in screed.open(self.input_file_name):
-                self.add_sequence(record.sequence, self.rev_comp)
+        for record in screed.open(self.input_file_name):
+            self.add_sequence(record.sequence, self.rev_comp)
 
         # at here, this object will read all sequences from the file and store them in the minhash sketch with counts
 
     # add sequence into sketch
-    def add_sequence(self, seq, rev_comp, ground_truth=False):
+    def add_sequence(self, seq, rev_comp):
         seq = seq.upper() #transfer to upper case (just in case)
         seq_split_onlyACTG = re.compile('[^ACTG]').split(seq) # get rid of non-ATCG letter
         if len(seq_split_onlyACTG) == 1:
             if len(seq) >= self.ksize:
                 for kmer in kmers(seq, self.ksize):
-                    self.add(kmer, 1, rev_comp, ground_truth)
+                    self.add(kmer, rev_comp)
         else:
             for sub_seq in seq_split_onlyACTG:
                 if len(sub_seq)>=self.ksize:        #in case of small chunk
-                    self.add_sequence(sub_seq, rev_comp, ground_truth)
+                    self.add_sequence(sub_seq, rev_comp)
 
     # add a kmer into the sketch
-    def add(self, kmer, weight, rev_comp, ground_truth):
-        if ground_truth:
-            _mins = self._gt_mins
-            _counts = self._gt_counts
-            _kmers = self._gt_kmers
-        else:
-            _mins = self._mins
-            _counts = self._counts
-            _kmers = self._kmers
+    def add(self, kmer, rev_comp):
+        _mins = self._mins
+        _counts = self._counts
+        _kmers = self._kmers
         # use rev_comp if needed
         if rev_comp:
             h1 = khmer.hash_no_rc_murmur3(kmer)
@@ -236,23 +226,18 @@ class CountEstimator(object):
         if h >= _mins[-1]:
             return
 
-        # early stop if n sketches are found
-        if h >= _mins[-1]:
-            return
-
         # insert kmer into the sketch
         i = bisect.bisect_left(_mins, h)  # find index to insert h
         if _mins[i] == h: #already in sketch
-            _counts[i] += weight
+            _counts[i] += 1
         else:
             #h not in sketch, insert
             _mins.insert(i, h)
-            _counts.insert(i, weight)
+            _mins.pop()
+            _counts.insert(i, 1)
+            _counts.pop()
             _kmers.insert(i, kmer)
-            if not ground_truth:    # for GT lists, just add but don't pop any elements out
-                _mins.pop()
-                _counts.pop()
-                _kmers.pop()
+            _kmers.pop()
             return
 
     # calculate est weighted Jaccard index
@@ -284,163 +269,6 @@ class CountEstimator(object):
         Y = np.array(pool.map(unwrap_jaccard_vector, zip([self] * len(other_list), other_list)))
         pool.terminate()
         return Y
-
-    # Non-WTST truncation: directly truncate the kmer list in the object
-    def brute_force_truncation(self, new_ksize):
-        """
-        Directly truncate the kmer list from a CE object, note this step is NOT reversible!!!
-        No WTST involved, this step is only to test the correctness of WTST truncation.
-        :param new_ksize: a smaller k than self.ksize
-        :return: updated CE object
-        """
-        if not isinstance(new_ksize, int):
-            raise Exception("Input number is not an integer")
-        if new_ksize > self.ksize:
-            raise Exception("New size must be smaller than %d." %self.ksize)
-        elif new_ksize == self.ksize:
-            return
-        elif new_ksize < self.ksize:
-            # data to be updated after the truncation:
-            self.ksize = new_ksize
-            new_kmers = [x[0:(new_ksize-1)] for x in self._kmers]
-            old_counts = self._counts.copy()
-            sketch_size = len(new_kmers)
-            # there would be unused positions due to duplicate
-            ### add count!!!
-            self._mins = [self.p] * sketch_size
-            self._counts = [0] * sketch_size
-            self._kmers = [''] * sketch_size
-            # update
-            for i in range(sketch_size):
-                self.add(new_kmers[i], old_counts[i], self.rev_comp, ground_truth=False)
-            return
-
-    # ground truth WJI preparation:
-    # too slow to run!!!!!!
-    def ground_truth_data(self):
-        # add all kmers into the ground truth attributes of the object
-        for record in screed.open(self.input_file_name):
-            self.add_sequence(record.sequence, self.rev_comp, ground_truth=True)
-
-    # get grount truth WJI
-    def gt_weighted_jaccard(self, other):
-        if self.ksize != other.ksize:
-            raise Exception("different k-mer sizes - cannot compare")
-        if self.p != other.p:
-            raise Exception("different primes - cannot compare")
-        gt_wji = weighted_jaccard(self._gt_mins, other._gt_mins, self._gt_counts, other._gt_counts)
-        return gt_wji
-
-
-# export multiple CEs to single hdf5
-def export_multiple_to_single_hdf5(CEs, export_file_name):
-    """
-    This will take a list of count estimators and export them to a single, large HDF5 file
-    :param CEs: list of Count Estimators
-    :param file_name: output file name
-    :return: None
-    """
-    fid = h5py.File(export_file_name, 'w')
-    grp = fid.create_group("CountEstimators")
-    for CE in CEs:
-        try:
-            subgrp = grp.create_group(os.path.basename(CE.input_file_name))  # the key of a subgroup is the basename (not the whole file)
-            mins_data = subgrp.create_dataset("mins", data=CE._mins)
-            counts_data = subgrp.create_dataset("counts", data=CE._counts)
-            if CE._kmers is not None:
-                kmer_data = subgrp.create_dataset("kmers", data=[np.string_(kmer) for kmer in CE._kmers])
-
-            subgrp.attrs['class'] = np.string_("CountEstimator")
-            subgrp.attrs['filename'] = np.string_(CE.input_file_name)  # But keep the full file name on hand
-            subgrp.attrs['ksize'] = CE.ksize
-            subgrp.attrs['prime'] = CE.p
-            subgrp.attrs['true_num_kmers'] = CE._true_num_kmers
-        except ValueError:
-            fid.close()
-            raise Exception("It appears that the training file name %s exists twice in the input data. Please make sure all names are unique (i.e. remove duplicates) and try again." % CE.input_file_name)
-
-    fid.close()
-
-# import multiple CEs from a single hdf5
-def import_multiple_from_single_hdf5(file_name, import_list=None):
-    """
-    This function will import multiple count estimators stored in a single HDF5 file.
-    :param file_name: file name for the single HDF5 file
-    :param import_list: List of names of files to import
-    :return: a list of Count Estimators
-    """
-    CEs = list()
-    fid = h5py.File(file_name, 'r')
-    if "CountEstimators" not in fid:
-        fid.close()
-        raise Exception("This function imports a single HDF5 file containing multiple sketches."
-                        " It appears you've used it on a file containing a single sketch."
-                        "Try using import_single_hdf5 instead")
-
-    grp = fid["CountEstimators"]
-    if import_list:
-        iterator = [os.path.basename(item) for item in import_list]
-    else:
-        iterator = grp.keys()
-
-    iterator = sorted(iterator, key=os.path.basename)  # sort so that we know the order of the input
-
-    for key in iterator:
-        if key not in grp:
-            fid.close()
-            raise Exception("The key " + key + " is not in " + file_name)
-
-        subgrp = grp[key]
-        file_name = subgrp.attrs['filename']
-        ksize = subgrp.attrs['ksize']
-        prime = subgrp.attrs['prime']
-        mins = subgrp["mins"][...]
-        counts = subgrp["counts"][...]
-        true_num_kmers = subgrp.attrs["true_num_kmers"]
-        CE = CountEstimator(n=len(mins), max_prime=3, ksize=ksize)
-        CE.p = prime
-        CE._mins = mins
-        CE._counts = counts
-        CE._true_num_kmers = true_num_kmers
-        CE.input_file_name = file_name
-        if "kmers" in subgrp:
-            temp_kmers = subgrp["kmers"][...]
-            CE._kmers = [kmer.decode('utf-8') for kmer in temp_kmers]
-        else:
-            CE._kmers = None
-
-        CEs.append(CE)
-
-    fid.close()
-    return(CEs)
-
-######### Tests
-def test_wji():
-    E1 = CountEstimator(n=0, ksize=21)
-    E2 = CountEstimator(n=0, ksize=21)
-
-    E1._mins = [1,2,4,7]
-    E2._mins = [1,2,5,6]
-
-    E1._counts = [1,2,3,4, 5]
-    E2._counts = [1,1,2,2, 3]
-
-    assert E1.est_weighted_jaccard(E2) ==  2/10.0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
