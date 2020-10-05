@@ -93,28 +93,28 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
     processed = 0
     # if a MH value appears only in one list, then min(W(A), W(B)) = 0
     # so we only count the other one if there is no match
-    try: #avoid the outofbound error in last round
-        # Note: MinHash is to pick n smallest hash values from AUB, NOT n from A and n from B
-        while processed <= min(len(mins1), len(mins2)):
-            while mins1[i] < mins2[j]:
-                sum_max += counts1[i] #W(B)=0, so add W(A)
-                i += 1
-                processed += 1
-            while mins1[i] > mins2[j]:
-                sum_max += counts2[j] #W(A)=0, so add W(B)
-                j += 1
-                processed += 1
-            if mins1[i] == mins2[j]:
-                #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
-                sum_min += min(counts1[i], counts2[j])
-                sum_max += max(counts1[i], counts2[j])
-                i += 1
-                j += 1
-    except IndexError:
-        WJI = sum_min / float(sum_max)
-        print(sum_min)
-        print(sum_max)
-        return WJI
+    while processed < min(len(mins1), len(mins2)):  # can't use equal
+        while mins1[i] < mins2[j]:
+            sum_max += counts1[i] #W(B)=0, so add W(A)
+            i += 1
+            processed += 1
+            break   # otherwise the outer while condition would NOT be checked for each run
+        while mins1[i] > mins2[j]:
+            sum_max += counts2[j] #W(A)=0, so add W(B)
+            j += 1
+            processed += 1
+            break
+        if mins1[i] == mins2[j]:
+            #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
+            sum_min += min(counts1[i], counts2[j])
+            sum_max += max(counts1[i], counts2[j])
+            i += 1
+            j += 1
+            processed += 1
+    WJI = sum_min / float(sum_max)
+    print(sum_min) #just for checking purpose
+    print(sum_max)
+    return WJI
 
 # calculate standard JI from previous WJI function by truncting the counts==0
 def not_necessary_ji(mins1, mins2, counts1, counts2):
@@ -422,10 +422,10 @@ def test_wji():
     E1._mins = [1,2,4,7]
     E2._mins = [1,2,5,6]
 
-    E1._counts = [1,2,3,4, 5]
-    E2._counts = [1,1,2,2, 3]
+    E1._counts = [1,2,3,4]
+    E2._counts = [1,1,2,2]
 
-    assert E1.est_weighted_jaccard(E2) ==  2/10.0
+    assert E1.est_weighted_jaccard(E2) ==  2/8.0
 
 
 
