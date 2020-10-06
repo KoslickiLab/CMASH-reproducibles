@@ -12,7 +12,6 @@ from matplotlib.lines import Line2D
 
 # temp variables
 input_range="20-60-5"
-os.chdir("./download")
 
 
 start=input_range.split("-")[0]

@@ -304,7 +304,7 @@ class CountEstimator(object):
             self.ksize = new_ksize
             new_kmers = [x[0:(new_ksize-1)] for x in self._kmers]
             old_counts = self._counts.copy()
-            sketch_size = len(new_kmers)
+            sketch_size = len(set(new_kmers))
             # there would be unused positions due to duplicate
             ### add count!!!
             self._mins = [self.p] * sketch_size
