@@ -12,7 +12,6 @@ from matplotlib.lines import Line2D
 
 # temp variables
 input_range="20-60-5"
-os.chdir("./download")
 
 
 start=input_range.split("-")[0]
@@ -110,7 +109,7 @@ fig5, axs = plt.subplots(1, figsize=(9, 9))
 fig5.suptitle("Boxplot of WJI dif")
 sb.boxplot(data=df_dif, color="red")
 label_median(df_dif, axs)
-axs.set(ylabel="Truncated-Groundtruth")
+axs.set(ylabel="Truncated-Est")
 fig5.tight_layout(rect=[0, 0.03, 1, 0.9])
 fig5.savefig("Boxplot_of_WJI_dif_" + name + ".png", dpi=300)
 plt.close(fig5)

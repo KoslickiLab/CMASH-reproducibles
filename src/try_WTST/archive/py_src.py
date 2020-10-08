@@ -93,65 +93,28 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
     processed = 0
     # if a MH value appears only in one list, then min(W(A), W(B)) = 0
     # so we only count the other one if there is no match
-    try: #avoid the outofbound error in last round
-        # Note: MinHash is to pick n smallest hash values from AUB, NOT n from A and n from B
-        while processed <= min(len(mins1), len(mins2)):
-            while mins1[i] < mins2[j]:
-                sum_max += counts1[i] #W(B)=0, so add W(A)
-                i += 1
-                processed += 1
-            while mins1[i] > mins2[j]:
-                sum_max += counts2[j] #W(A)=0, so add W(B)
-                j += 1
-                processed += 1
-            if mins1[i] == mins2[j]:
-                #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
-                sum_min += min(counts1[i], counts2[j])
-                sum_max += max(counts1[i], counts2[j])
-                i += 1
-                j += 1
-    except IndexError:
-        WJI = sum_min / float(sum_max)
-        print(sum_min)
-        print(sum_max)
-        return WJI
-
-# calculate standard JI from previous WJI function by truncting the counts==0
-def not_necessary_ji(mins1, mins2, counts1, counts2):
-    i = len(counts1)-1
-    j = len(counts2)-1
-    while counts1[i] == 0:
-        mins1.pop()
-        i -= 1
-    while counts2[j] == 0:
-        mins2.pop()
-        j -= 1
-
-    i = 0
-    j = 0
-    processed = 0
-    sum_min = 0 #for numerator
-    sum_max = 0 #for denominator
-    # repeat the function above
-    try: #avoid the outofbound error in last round
-        while processed <= min(len(mins1), len(mins2)):
-            while mins1[i] < mins2[j]:
-                sum_max += 1 #W(B)=0, so add W(A)
-                i += 1
-                processed += 1
-            while mins1[i] > mins2[j]:
-                sum_max += 1 #W(A)=0, so add W(B)
-                j += 1
-                processed += 1
-            if mins1[i] == mins2[j]:
-                #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
-                sum_min += 1
-                sum_max += 1
-                i += 1
-                j += 1
-    except IndexError:
-        JI = sum_min / float(sum_max)
-        return JI
+    while processed < min(len(mins1), len(mins2)):  # can't use equal
+        while mins1[i] < mins2[j]:
+            sum_max += counts1[i] #W(B)=0, so add W(A)
+            i += 1
+            processed += 1
+            break   # otherwise the outer while condition would NOT be checked for each run
+        while mins1[i] > mins2[j]:
+            sum_max += counts2[j] #W(A)=0, so add W(B)
+            j += 1
+            processed += 1
+            break
+        if mins1[i] == mins2[j]:
+            #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
+            sum_min += min(counts1[i], counts2[j])
+            sum_max += max(counts1[i], counts2[j])
+            i += 1
+            j += 1
+            processed += 1
+    WJI = sum_min / float(sum_max)
+    print(sum_min) #just for checking purpose
+    print(sum_max)
+    return WJI
 
 # parallel wrapper for WJI calculation
 def unwrap_jaccard_vector(arg):
@@ -302,17 +265,19 @@ class CountEstimator(object):
         elif new_ksize < self.ksize:
             # data to be updated after the truncation:
             self.ksize = new_ksize
-            new_kmers = [x[0:(new_ksize-1)] for x in self._kmers]
+            new_kmers = [x[0:new_ksize] for x in self._kmers]
             old_counts = self._counts.copy()
             sketch_size = len(new_kmers)
-            # there would be unused positions due to duplicate
-            ### add count!!!
             self._mins = [self.p] * sketch_size
             self._counts = [0] * sketch_size
             self._kmers = [''] * sketch_size
             # update
             for i in range(sketch_size):
                 self.add(new_kmers[i], old_counts[i], self.rev_comp, ground_truth=False)
+            while self._mins[-1] == self.p: # rm unused cells
+                self._mins.pop()
+                self._counts.pop()
+                self._kmers.pop()
             return
 
     # ground truth WJI preparation:
@@ -422,11 +387,25 @@ def test_wji():
     E1._mins = [1,2,4,7]
     E2._mins = [1,2,5,6]
 
-    E1._counts = [1,2,3,4, 5]
-    E2._counts = [1,1,2,2, 3]
+    E1._counts = [1,2,3,4]
+    E2._counts = [1,1,2,2]
 
-    assert E1.est_weighted_jaccard(E2) ==  2/10.0
+    assert E1.est_weighted_jaccard(E2) ==  2/8.0
 
+def test_truncation():
+    E3 = CountEstimator(n=0, ksize=4, rev_comp=False)
+    E3._kmers = ['AAAA', 'AAAT', 'AAAC', 'AAGG']
+    E3._counts = [1,2,3,4]
+
+    # truncate to k=3
+    E3.brute_force_truncation(3)
+    assert E3._kmers == ['AAA', 'AAG']
+    assert E3._counts == [6,4]
+
+    # truncate to k=2
+    E3.brute_force_truncation(2)
+    assert E3._kmers == ['AA']
+    assert E3._counts == [10]
 
 
 
