@@ -60,6 +60,7 @@ print("The ref file is " + ref_file)
 # threads = 6
 # query_file = "/Users/shaopeng/Desktop/WTST_test_run/query_path.txt"
 # ref_file = "/Users/shaopeng/Desktop/WTST_test_run/ref_path.txt"
+# rev_comp = False
 #
 # # read each single files into a list
 # query_list = fc.check_files(query_file)
@@ -97,11 +98,6 @@ sketch1 = get_ce_lists(query_list, num_threads, ksize, rev_comp)
 sketch2 = get_ce_lists(ref_list, num_threads, ksize, rev_comp)
 
 # store those data into a hdf5 file
-
-
-#
-
-
 
 
 
@@ -145,8 +141,8 @@ for i in truncation_seq:
 
 # standard est_wji data
 for i in list(range(20, 60, 5)):
-	sketch1 = get_ce_lists(query_list, num_threads, i)
-	sketch2 = get_ce_lists(ref_list, num_threads, i)
+	sketch1 = get_ce_lists(query_list, num_threads, i, rev_comp)
+	sketch2 = get_ce_lists(ref_list, num_threads, i, rev_comp)
 	out_name = "est_WJI_k" + str(i) + ".csv"
 	out1 = wji_array(sketch1, sketch2, num_threads, out_name)
 

@@ -80,10 +80,10 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
     """
     Returns weighted jaccard index:
     J_{W}=\frac{\sum_{d\subseteq D}min(W_A(d), W_B(d))}{\sum_{d\subseteq D}max(W_A(d), W_B(d))}
-    :param mins1:
-    :param mins2:
-    :param counts1:
-    :param counts2:
+    :param mins1: minhash value for CE object1 in a list
+    :param mins2: minhash value for CE object2 in a list
+    :param counts1: weight for min1
+    :param counts2: weight for min2
     :return:
     """
     sum_min = 0 #for numerator
@@ -93,18 +93,16 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
     processed = 0
     # if a MH value appears only in one list, then min(W(A), W(B)) = 0
     # so we only count the other one if there is no match
-    while processed < min(len(mins1), len(mins2)):  # can't use equal
-        while mins1[i] < mins2[j]:
+    while processed < min(len(mins1), len(mins2)):  # loop stop when min(|A|, |B|) sample size reached
+        if mins1[i] < mins2[j]:
             sum_max += counts1[i] #W(B)=0, so add W(A)
             i += 1
             processed += 1
-            break   # otherwise the outer while condition would NOT be checked for each run
-        while mins1[i] > mins2[j]:
+        elif mins1[i] > mins2[j]:
             sum_max += counts2[j] #W(A)=0, so add W(B)
             j += 1
             processed += 1
-            break
-        if mins1[i] == mins2[j]:
+        elif mins1[i] == mins2[j]:
             #skip the value = max_prime check becaue their weights are all 0, so min/max are 0s
             sum_min += min(counts1[i], counts2[j])
             sum_max += max(counts1[i], counts2[j])
@@ -396,16 +394,17 @@ def test_truncation():
     E3 = CountEstimator(n=0, ksize=4, rev_comp=False)
     E3._kmers = ['AAAA', 'AAAT', 'AAAC', 'AAGG']
     E3._counts = [1,2,3,4]
-
     # truncate to k=3
     E3.brute_force_truncation(3)
     assert E3._kmers == ['AAA', 'AAG']
     assert E3._counts == [6,4]
-
     # truncate to k=2
     E3.brute_force_truncation(2)
     assert E3._kmers == ['AA']
     assert E3._counts == [10]
+
+
+
 
 
 

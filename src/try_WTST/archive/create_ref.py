@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(description="This script creates training/refer
 									" listed in the input file.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-q','--query', help="Path to the query file.")
 parser.add_argument('-r', '--ref' , help="Path to the ref file.")
+parser.add_argument('-c', '--rev_comp' , help="Whether to keep the reverse complementary", default=True)
 parser.add_argument('-n', '--num_hashes', type=int, help="Number of hashes to use.", default=1000)
 parser.add_argument('-k', '--k_size', type=int, help="k-mer size", default=60)
 parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(8, int(multiprocessing.cpu_count()/2)))
@@ -33,6 +34,7 @@ ksize = args.k_size # max k used in the analysis
 max_h = args.num_hashes # number of hashes to use
 query_file = args.query
 ref_file = args.ref
+rev_comp = args.rev_comp
 query_file_names = os.path.abspath(query_file)
 if not os.path.exists(query_file_names):
 	raise Exception("Input file %s does not exist." % query_file_names)
@@ -66,7 +68,7 @@ print("The ref file is " + ref_file)
 # # single file test
 # f1 = fc.CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=ref_list[0])
 # f2 = fc.CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=query_list[0])
-# f1.est_weighted_jaccard(f2) #0.7868
+# f1.est_weighted_jaccard(f2) #0.791
 #############################################
 
 # pipe start
@@ -74,9 +76,9 @@ query_list = fc.check_files(query_file)
 ref_list = fc.check_files(ref_file)
 
 # parellel: build CE objects for both query and ref files
-def make_minhash(genome, max_h, prime, ksize):
+def make_minhash(genome, max_h, prime, ksize, reverse_comp=True):
 	# a wrapper, may add additional tags
-	MHS = fc.CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=genome, rev_comp=True)
+	MHS = fc.CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=genome, rev_comp=reverse_comp)
 	return MHS
 
 # add a tup wrapper to correctly recognize input parameters:
@@ -85,14 +87,14 @@ def make_minhash_star(arg):
 	return make_minhash(*arg)
 
 # use pool.imap to make an iteratable object to export
-def get_ce_lists(input_file, thread_num, input_k):
+def get_ce_lists(input_file, thread_num, input_k, reverse_comp):
 	para = Pool(processes=thread_num)
-	genome_sketches = para.map(make_minhash_star, zip(input_file, repeat(max_h), repeat(prime), repeat(input_k)))
+	genome_sketches = para.map(make_minhash_star, zip(input_file, repeat(max_h), repeat(prime), repeat(input_k), repeat(reverse_comp)))
 	para.close()
 	return genome_sketches
 
-sketch1 = get_ce_lists(query_list, num_threads, ksize)
-sketch2 = get_ce_lists(ref_list, num_threads, ksize)
+sketch1 = get_ce_lists(query_list, num_threads, ksize, rev_comp)
+sketch2 = get_ce_lists(ref_list, num_threads, ksize, rev_comp)
 
 # store those data into a hdf5 file
 
