@@ -24,7 +24,7 @@ parser.add_argument('-r', '--ref' , help="Path to the ref file.")
 parser.add_argument('-c', '--rev_comp' , help="Whether to keep the reverse complementary", default=True)
 parser.add_argument('-n', '--num_hashes', type=int, help="Number of hashes to use.", default=1000)
 parser.add_argument('-k', '--k_size', type=int, help="k-mer size", default=60)
-parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(8, int(multiprocessing.cpu_count()/2)))
+parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(64, int(multiprocessing.cpu_count()/2)))
 parser.add_argument('-p', '--prime', help='Prime (for modding hashes)', default=9999999999971)
 
 args = parser.parse_args()
@@ -75,6 +75,8 @@ print("The ref file is " + ref_file)
 # pipe start
 query_list = fc.check_files(query_file)
 ref_list = fc.check_files(ref_file)
+input_range="10-60-5"
+k_range = fc.parsenumlist(input_range)
 
 # parellel: build CE objects for both query and ref files
 def make_minhash(genome, max_h, prime, ksize, reverse_comp=True):
@@ -103,7 +105,7 @@ sketch2 = get_ce_lists(ref_list, num_threads, ksize, rev_comp)
 
 #### below should be put into another py scipt as running them
 # maxk=60
-# range=10-60-5
+
 
 # WJI vector to array
 def wji_array(list1, list2, thread_num, out_file_name):
@@ -130,7 +132,7 @@ def bf_truncation(ce_list, new_ksize):
 	for ce in ce_list:
 		ce.brute_force_truncation(new_ksize)
 
-truncation_seq = list(range(20, 60, 5))
+truncation_seq = k_range.copy()
 truncation_seq.reverse()
 for i in truncation_seq:
 	bf_truncation(sketch1, i)
@@ -140,17 +142,9 @@ for i in truncation_seq:
 
 
 # standard est_wji data
-for i in list(range(20, 60, 5)):
+for i in k_range:
 	sketch1 = get_ce_lists(query_list, num_threads, i, rev_comp)
 	sketch2 = get_ce_lists(ref_list, num_threads, i, rev_comp)
 	out_name = "est_WJI_k" + str(i) + ".csv"
 	out1 = wji_array(sketch1, sketch2, num_threads, out_name)
-
-
-
-
-
-
-
-
 

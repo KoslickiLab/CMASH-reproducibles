@@ -122,7 +122,8 @@ def weighted_jaccard(mins1, mins2, counts1, counts2):
 # parallel wrapper for WJI calculation
 def unwrap_jaccard_vector(arg):
 	return arg[0].est_weighted_jaccard(arg[1])
-
+def unwrap_wji_vector(arg):
+	return arg[0]._kmc_check(arg[1], arg[2])
 
 # parse k range like 10-60-5
 def parsenumlist(k_sizes_str: str):
@@ -405,9 +406,9 @@ def compute_multiple(n=None, max_prime=9999999999971., ksize=None, input_files_l
 	return CEs
 
 
-### calculate ground truth WJI for
+
 # kmc enumerate all kmers
-def kmc_count(input_file_name, output_file_name, kmer_size: int, threads=1, rev_comp=False):
+def kmc_count(input_file_name, output_file_name, kmer_size: int, rev_comp=False, threads=1):
 	"""
 	Call kmc to get all kmers in an input file and store them for future usage
 	:param input_file: a fasta file or bam file
@@ -421,7 +422,7 @@ def kmc_count(input_file_name, output_file_name, kmer_size: int, threads=1, rev_
 		use_canonical=" "
 	for input_type in input_types:
 		res = subprocess.run(
-			f"kmc -k{kmer_size} {input_type} {use_canonical} -r -t{threads} -ci0 -j{output_file_name}.log {input_file_name} {output_file_name} ."
+			f"kmc -k{kmer_size} {input_type} {use_canonical} -r -t{threads} -cs999999 -ci0 -j{output_file_name}.log {input_file_name} {output_file_name} ."
 			, shell=True, stderr = subprocess.DEVNULL, stdout = subprocess.DEVNULL)
 		if res.returncode == 0:
 			success = True
@@ -478,18 +479,80 @@ class GroundTruth_WJI(object):
 	Ignore the read training_db because its for input file paths only
 	Work for a whole range here
 	"""
-	def __init__(self, k_range: str, seq_file=None, rev_comp=True, temp_dir=None):
+	def __init__(self, k_range: str, seq_file=None, rev_comp=True, temp_dir=None, threads=6):
 		self.rev_comp = rev_comp
 		self.k_sizes = parsenumlist(k_range)
 		self.seq_file = seq_file
 		self.temp_dir = temp_dir
+		self.threads = threads
+		if temp_dir is None:
+			raise Exception("Please specify temp dir to store kmer files")
 		if not os.path.exists(temp_dir):
 			os.mkdir(temp_dir)
+		self.kmc_db_prefix = f"{os.path.join(self.temp_dir, os.path.basename(self.seq_file))}_k_"
 
 	# make a output file path by temp_dir + basename of input file
 	def __kmc_output_name_converter(self, input_file: str, k_size: str) -> str:
 		temp_dir = self.temp_dir
 		return f"{os.path.join(temp_dir, os.path.basename(input_file))}_k_{k_size}"
+		
+	# generate kmc kmer files for range of k_sizes
+	def _compute_all_training_kmers(self):
+		num_threads=self.threads
+		to_compute = []
+		# create the tuples to be computed on: (input file, ouput_kmc_file, k_kmer_size)
+		if self.seq_file is None:
+			raise Exception("Please specify input seq file!")
+		for k_size in self.k_sizes:
+			output_file = self.__kmc_output_name_converter(self.seq_file, k_size)
+			to_compute.append((self.seq_file, output_file, k_size, self.rev_comp))
+		pool = multiprocessing.Pool(processes=int(min(num_threads, len(self.k_sizes))))
+		res = pool.starmap(kmc_count, to_compute)
+		# consume everything so we know the process has completed
+		for it in res:
+			pass
+		pool.close()
+		
+	# GT WJI calculation by kmc
+	def _kmc_check(self, other, k_size):
+		"""
+		Add another temp work dir!!!! The GT WJI counting step may have conflicts of intermediate file names
+		"""
+		if self.k_sizes != other.k_sizes:
+			raise Exception("k range of 2 input objects NOT match!!!")
+		input_file1 = os.path.abspath(f"{self.kmc_db_prefix}{k_size}")
+		input_file2 = os.path.abspath(f"{other.kmc_db_prefix}{k_size}")
+		print(input_file1)
+		print(input_file2)
+		temp_name = f"kmc_k_{k_size}_{os.path.basename(self.seq_file)}_{os.path.basename(other.seq_file)}"
+		os.mkdir(temp_name)
+		os.chdir(temp_name)
+		print(os.getcwd())
+		temp_wji = kmc_intersection_count_for_wji(input_file1, input_file2)
+		print(temp_wji)
+		os.chdir("../")
+		try:
+			os.rmdir(temp_name)
+		except OSError:
+			print("Processing unsucceful for " + temp_name)
+			raise SystemExit
+		return temp_wji
+	
+	# GT WJI vector calculation
+	def gt_wji_vector(self, other_list, k_size):
+		pool = Pool(processes=self.threads)
+		Y = np.array(pool.map(unwrap_wji_vector, zip([self] * len(other_list), other_list, [k_size] * len(other_list))))
+		pool.terminate()
+		return Y
+	
+	
+
+		
+		
+		
+		
+	
+	
 
 
 
