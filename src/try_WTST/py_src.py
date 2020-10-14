@@ -437,7 +437,7 @@ def kmc_intersection_count_for_wji(kmc_input_file1: str, kmc_input_file2: str, k
 	"""
 
 	# numerator: intersect -ocmin
-	res = subprocess.run(f"kmc_tools simple {kmc_input_file1} -ci1 {kmc_input_file2} -ci1 union temp_intersect_min -ocmin",
+	res = subprocess.run(f"kmc_tools simple {kmc_input_file1} -ci1 {kmc_input_file2} -ci1 intersect temp_intersect_min -ocmin",
 						shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	if res.returncode != 0:
 		raise Exception(f"The command {res.args} failed to run and returned the returncode={res.returncode}")
