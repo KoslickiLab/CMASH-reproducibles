@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description="This script creates training/refer
 									" listed in the input file.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-q','--query', help="Path to the query file.")
 parser.add_argument('-r', '--ref' , help="Path to the ref file.")
-parser.add_argument('-c', '--rev_comp' , help="Whether to keep the reverse complementary", default=True)
+parser.add_argument('-c', '--rev_comp' , type=str, help="Whether to keep the reverse complementary", default="True")
 parser.add_argument('-n', '--num_hashes', type=int, help="Number of hashes to use.", default=1000)
 parser.add_argument('-k', '--k_size', type=int, help="k-mer size", default=60)
 parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(64, int(multiprocessing.cpu_count()/2)))
@@ -35,6 +35,14 @@ max_h = args.num_hashes # number of hashes to use
 query_file = args.query
 ref_file = args.ref
 rev_comp = args.rev_comp
+if rev_comp == "True":
+	rev_comp = True
+elif rev_comp == "False":
+	rev_comp = False
+
+if rev_comp:
+	print("Using true for rev_comp!!!!!!")
+
 query_file_names = os.path.abspath(query_file)
 if not os.path.exists(query_file_names):
 	raise Exception("Input file %s does not exist." % query_file_names)

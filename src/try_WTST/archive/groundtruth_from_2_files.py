@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description="This script creates training/refer
 									" listed in the input file.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-q','--query', help="Path to the query file.")
 parser.add_argument('-r', '--ref' , help="Path to the ref file.")
-parser.add_argument('-c', '--rev_comp' , type=str, help="Whether to keep the reverse complementary", default="True")
+parser.add_argument('-c', '--rev_comp' , help="Whether to keep the reverse complementary", default=False)
 parser.add_argument('-k', '--k_range', type=str, help="k-mer size", default="10-60-5")
 parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(64, int(multiprocessing.cpu_count()/2)))
 
@@ -31,11 +31,7 @@ input_range = args.k_range # max k used in the analysis
 query_file = args.query
 ref_file = args.ref
 rev_comp = args.rev_comp
-if rev_comp == "True":
-	rev_comp = True
-elif rev_comp == "False":
-	rev_comp = False
-	
+
 query_file_names = os.path.abspath(query_file)
 if not os.path.exists(query_file_names):
 	raise Exception("Input file %s does not exist." % query_file_names)
@@ -58,7 +54,7 @@ k_range = fc.parsenumlist(input_range)
 
 # test ground truth
 # 1. build list of GT objects
-def make_gt(seq_file=None, k_range=None,  rev_comp=None, temp_dir=None, threads=6):
+def make_gt(seq_file=None, k_range=None,  rev_comp=False, temp_dir=None, threads=6):
 	# a wrapper, may add additional tags
 	GTS = fc.GroundTruth_WJI(k_range=k_range, seq_file=seq_file, rev_comp=rev_comp, temp_dir=temp_dir, threads=threads)
 	return GTS
@@ -72,15 +68,8 @@ def get_gt_list(input_file, input_range, temp_dir, rev_comp, thread_num):
 	para.close()
 	return GT_obj
 
-
-# this is a wired situation: (hypothesis) in parallel creating GT objects, several if check will be met simoutaneously
-# however when call "mkdir", only first will success and others return errors "file exists"
-# if I manually create this folder, then there is no error.
-
-if not os.path.exists("kmc_database"):
-	os.mkdir("kmc_database")
-GT1 = get_gt_list(query_list, input_range, "kmc_database", rev_comp, num_threads)
-GT2 = get_gt_list(ref_list, input_range, "kmc_database", rev_comp, num_threads)
+GT1 = get_gt_list(query_list, input_range, "kmc_database", False, num_threads)
+GT2 = get_gt_list(ref_list, input_range, "kmc_database", False, num_threads)
 
 # 2. generate all kmer database for k range
 def generate_kmc_db(gt_list):
