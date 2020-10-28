@@ -18,18 +18,19 @@ import marisa_trie as mt
 import subprocess
 import screed
 import bisect
+import time
 
 #####################
 # local variables for convenience
-num_threads = 6
-prime = 9999999999971
-ksize = 60
-input_range = "10-60-5"
-max_h = 1000
-rev_comp = True
-fast_mode = False
-query_file = "/Users/shaopeng/Desktop/WTST_test_run/query_path.txt"
-ref_file = "/Users/shaopeng/Desktop/WTST_test_run/ref_path.txt"
+# num_threads = 6
+# prime = 9999999999971
+# ksize = 60
+# input_range = "10-60-5"
+# max_h = 1000
+# rev_comp = True
+# fast_mode = False
+# query_file = "/Users/shaopeng/Desktop/WTST_test_run/query_path.txt"
+# ref_file = "/Users/shaopeng/Desktop/WTST_test_run/ref_path.txt"
 #####################
 
 
@@ -46,6 +47,9 @@ parser.add_argument('-k', '--k_size', type=int, help="k-mer size", default=60)
 parser.add_argument('-g', '--k_range', type=str, help="k-mer range", default="10-60-5")
 parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(64, int(multiprocessing.cpu_count()/2)))
 parser.add_argument('-p', '--prime', help='Prime (for modding hashes)', default=9999999999971)
+parser.add_argument('-z', '--skip_gt', type=str, help="Skip GT JI calculation", default="False")
+parser.add_argument('-x', '--skip_est', type=str, help="Skip Est JI calculation", default="False")
+parser.add_argument('-y', '--skip_trunc', type=str, help="Skip Trunc JI calculation", default="False")
 
 args = parser.parse_args()
 num_threads = args.threads
@@ -57,6 +61,10 @@ query_file = args.query
 ref_file = args.ref
 rev_comp = args.rev_comp
 fast_mode = args.fast
+skip_gt = args.skip_gt
+skip_est = args.skip_est
+skip_trunc = args.skip_trunc
+
 if rev_comp == "True":
 	rev_comp = True
 elif rev_comp == "False":
@@ -71,12 +79,36 @@ elif fast_mode == "True":
 if fast_mode:
 	print("Skipping all kmc building process and assume they are already built!!!!!!")
 
+if skip_gt == "False":
+	skip_gt = False
+elif skip_gt == "True":
+	skip_gt = True
+if skip_gt:
+	print("Skipping all GT JI calculation steps")
+
+if skip_est == "False":
+	skip_est = False
+elif skip_est == "True":
+	skip_est = True
+if skip_est:
+	print("Skipping all Est JI calculation steps")
+
+if skip_trunc == "False":
+	skip_trunc = False
+elif skip_trunc == "True":
+	skip_trunc = True
+if skip_trunc:
+	print("Skipping all Trunc JI calculation steps")
+
+
 query_file_names = os.path.abspath(query_file)
 if not os.path.exists(query_file_names):
 	raise Exception("Input file %s does not exist." % query_file_names)
 ref_file_names = os.path.abspath(ref_file)
 if not os.path.exists(ref_file_names):
 	raise Exception("Input file %s does not exist." % query_file_names)
+
+
 
 # functions copied from CMash scripts
 def parsenumlist(k_sizes_str: str):
@@ -140,8 +172,11 @@ def kmers(seq, ksize):
 	
 # wrapper for trunc_JI from JI_CE object
 def unwrap_jaccard_vector(arg):
-		return arg[0].est_jaccard(arg[1])
+	return arg[0].est_jaccard(arg[1])
 
+# wrapper for bias factor from JI_CE object
+def unwrap_bias_vector(arg):
+	return arg[0].calculate_bias_factor(arg[1])
 
 
 # pipe start
@@ -175,7 +210,7 @@ def create_kmc_db(input_file, k):
 		raise Exception(f"The command {res.args} failed to run and returned the returncode={res.returncode}")
 
 if not fast_mode:
-	print("Creating hmc database for JI test")
+	print("Creating kmc database for JI test")
 	if not os.path.exists(temp_dir):
 		os.mkdir(temp_dir)
 	for file in set(query_list).union(set(ref_list)):
@@ -183,10 +218,8 @@ if not fast_mode:
 			print("Running file " + file)
 			create_kmc_db(file, k)
 
-
-
 # get ground truth JI by kmc
-def kmc_intersection_count_for_ji(kmc_input_file1: str, kmc_input_file2: str, input_k, keep_intermediate=True):
+def kmc_intersection_count_for_ji(kmc_input_file1: str, kmc_input_file2: str, input_k, keep_intermediate=False):
 	# use intermediate folder to avoid file name conflicts
 	kmc_input_file1 = os.path.basename(kmc_input_file1)
 	kmc_input_file2 = os.path.basename(kmc_input_file2)
@@ -217,7 +250,7 @@ def kmc_intersection_count_for_ji(kmc_input_file1: str, kmc_input_file2: str, in
 	os.remove("temp_union_min.kmc_suf")
 	if keep_intermediate:
 		os.chdir("../")
-		subprocess.run(f"mv {temp_name} ./{temp_dir}", shell=True )
+		subprocess.run(f"mv -n {temp_name} ./{temp_dir}", shell=True )
 	else:
 		os.remove("temp_dump_union")
 		os.remove("temp_dump_intersect")
@@ -256,16 +289,16 @@ def ji_matrix(list1, list2, input_k, out_file_name):
 	df.to_csv(out_file_name, index=True, encoding='utf-8')
 	return df
 
-for k in k_sizes:
-	out_name = "GroundTruth_JI_k"+str(k)+".csv"
-	ji_matrix(query_list, ref_list, k, out_name)
-
+if not skip_gt:
+	for k in k_sizes:
+		out_name = "GroundTruth_JI_k" + str(k) + ".csv"
+		ji_matrix(query_list, ref_list, k, out_name)
 
 
 # get estimated JI and truncated JI
 ### CE object similar to CMash
 class JI_CountEstimator(object):
-	def __init__(self, n=None, max_prime=9999999999971, ksize=None, input_file_name=None, rev_comp=True):
+	def __init__(self, n=None, max_prime=9999999999971, ksize=None, input_file_name=None, rev_comp=True, full_kmer=False):
 		if n is None:
 			raise Exception
 		if ksize is None:
@@ -273,41 +306,50 @@ class JI_CountEstimator(object):
 
 		# read parameters
 		self.ksize = ksize
+		self.maxk = ksize
 		self.p = get_prime_lt_x(max_prime)
 		self.input_file_name = input_file_name
 		self.rev_comp = rev_comp
+		self.full_kmer = full_kmer
 
 		# initialize sketch of size n with count
 		self._mins = [self.p] * n
 		self._kmers = [''] * n
+		self._all_kmer = dict()
+		self._truncated_all_kmer = ['']
 
 		# read sequence by "screed" and load them into the sketch (replace parse_file function in L105)
 		if self.input_file_name:
 			for record in screed.open(self.input_file_name):
-				self.add_sequence(record.sequence)
+				self.add_sequence(record.sequence, self.full_kmer)
 
-	def add_sequence(self, seq):
+	def add_sequence(self, seq, update_full=False):
 		seq = seq.upper() #transfer to upper case (just in case)
 		seq_split_onlyACTG = re.compile('[^ACTG]').split(seq) # get rid of non-ATCG letter
 		if len(seq_split_onlyACTG) == 1:
 			if len(seq) >= self.ksize:
 				for kmer in kmers(seq, self.ksize):
-					self.add(kmer)
+					self.add(kmer, update_full)
 		else:
 			for sub_seq in seq_split_onlyACTG:
 				if len(sub_seq)>=self.ksize:        #in case of small chunk
-					self.add_sequence(sub_seq)
+					self.add_sequence(sub_seq, update_full)
 
-	def add(self, kmer):
+	def add(self, kmer, update_full=False):
 		_mins = self._mins
 		_kmers = self._kmers
 		# use rev_comp if needed
 		if self.rev_comp:
-			cano_kmer = min(kmer, khmer.reverse_complement(kmer))
-			h = khmer.hash_no_rc_murmur3(cano_kmer)
-		else:
-			h = khmer.hash_no_rc_murmur3(kmer)
-		# reminder of max_prime we use
+			kmer = min(kmer, khmer.reverse_complement(kmer))
+		h = khmer.hash_no_rc_murmur3(kmer)
+		# insert into full kmer set
+		if update_full:
+			_full = self._all_kmer
+			if kmer not in _full:
+				_full[kmer] = 1
+			else:
+				_full[kmer] += 1
+		# insert into MH sketches reminder of max_prime we use
 		h = h % self.p
 		# early stop if n sketches are found
 		if h >= _mins[-1]:
@@ -378,24 +420,83 @@ class JI_CountEstimator(object):
 			self._kmers = [''] * sketch_size
 			# update
 			for i in range(sketch_size):
-				self.add(new_kmers[i])
+				self.add(new_kmers[i])   # for MH sketch only
+			# clean trailing empty cells in sketches
 			while self._mins[-1] == self.p: # rm unused cells
 				self._mins.pop()
 				self._kmers.pop()
+			# conditional: truncate the full kmer to current ksize
+			if self.full_kmer:
+				old_kmers = [x[0:new_ksize] for x in self._all_kmer]
+				if self.rev_comp:
+					old_kmers = [min(x, khmer.reverse_complement(x)) for x in old_kmers]
+				self._truncated_all_kmer = list(set(old_kmers))
 			return
+		
+	def calculate_bias_factor(self, other):
+		"""
+		Calculate the bias factor from 2 JI_CE object, need to be truncated first
+		Will use: 2 truncated full kmer, 2 full kmer, maxk, current ksize
+		"""
+		if self.ksize != other.ksize:
+			raise Exception("different k-mer sizes - cannot compare")
+		if self.p != other.p:
+			raise Exception("different primes - cannot compare")
+		if self.maxk != other.maxk:
+			raise Exception("different maxk - cannot compare")
+		if not self.full_kmer or not other.full_kmer:
+			raise Exception("full kmer not enabled for the CE object")
+		
+		# use dict to count prefix
+		ksmall_intersect = dict()
+		for kmer in list(set(self._truncated_all_kmer).intersection(other._truncated_all_kmer)):
+			ksmall_intersect[kmer] = 0 #for counting purpose
+		ksmall_union = dict()
+		for kmer in list(set(self._truncated_all_kmer).union(other._truncated_all_kmer)):
+			ksmall_union[kmer] = 0
+			
+		# count prefix match
+		for kmer in list(set(self._all_kmer.keys()).union(other._all_kmer.keys())):
+			kmer = kmer[0:self.ksize] # prefix
+			if self.rev_comp:
+				kmer = min(kmer, khmer.reverse_complement(kmer))
+			if kmer in ksmall_intersect:
+				ksmall_intersect[kmer] += 1
+				ksmall_union[kmer] += 1
+			elif kmer in ksmall_union:
+				ksmall_union[kmer] += 1
+		
+		# bias factor
+		numerator = sum(ksmall_intersect.values()) * 1.0 / len(ksmall_intersect)
+		denominator = sum(ksmall_union.values()) * 1.0 / len(ksmall_union)
+		bias_factor = numerator / denominator
+		print(numerator)
+		print(denominator)
+		return bias_factor
+	
+	def bias_vector(self, other_list, threads=num_threads):
+		pool = Pool(processes=threads)
+		Y = np.array(pool.map(unwrap_bias_vector, zip([self] * len(other_list), other_list)))
+		pool.terminate()
+		return Y
+
+		
+			
+				
+		
 
 
 ### get JI_CE object lists and array functions
-def make_minhash(genome, max_h, prime, ksize, rev_comp):
-	MHS = JI_CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=genome, rev_comp=rev_comp)
+def make_minhash(genome, max_h, prime, ksize, rev_comp, full_kmer):
+	MHS = JI_CountEstimator(n=max_h, max_prime=prime, ksize=ksize, input_file_name=genome, rev_comp=rev_comp, full_kmer=full_kmer)
 	return MHS
 
 def make_minhash_star(arg):
 	return make_minhash(*arg)
 
-def get_ce_lists(input_file, input_k, reverse_comp):
+def get_ce_lists(input_file, input_k, reverse_comp, full_kmer=False):
 	para = Pool(processes=num_threads)
-	genome_sketches = para.map(make_minhash_star, zip(input_file, repeat(max_h), repeat(prime), repeat(input_k), repeat(reverse_comp)))
+	genome_sketches = para.map(make_minhash_star, zip(input_file, repeat(max_h), repeat(prime), repeat(input_k), repeat(reverse_comp), repeat(full_kmer)))
 	para.close()
 	return genome_sketches
 
@@ -414,97 +515,39 @@ def ji_matrix(list1, list2, out_file_name):
 	df.to_csv(out_file_name, index=True, encoding='utf-8')
 	return df
 
-### get trunc_JI
-sketch1 = get_ce_lists(query_list, ksize, rev_comp)
-sketch2 = get_ce_lists(ref_list, ksize, rev_comp)
-
 def bf_truncation(ce_list, new_ksize):
 	for ce in ce_list:
 		ce.brute_force_truncation(new_ksize)
 
-for i in k_sizes:
-	bf_truncation(sketch1, i)
-	bf_truncation(sketch2, i)
-	out_name="trunc_JI_k"+str(i)+".csv"
-	out1 = ji_matrix(sketch1, sketch2, out_name)
+### get trunc_JI
+if not skip_trunc:
+	sketch1 = get_ce_lists(query_list, ksize, rev_comp)
+	sketch2 = get_ce_lists(ref_list, ksize, rev_comp)
+	rev_k_sizes = k_sizes.copy()
+	rev_k_sizes.reverse()
+	for i in rev_k_sizes:
+		bf_truncation(sketch1, i)
+		bf_truncation(sketch2, i)
+		out_name = "trunc_JI_k" + str(i) + ".csv"
+		out1 = ji_matrix(sketch1, sketch2, out_name)
 
 ### get est_JI
-for i in k_sizes:
-	sketch1 = get_ce_lists(query_list, i, rev_comp)
-	sketch2 = get_ce_lists(ref_list, i, rev_comp)
-	out_name = "est_JI_k"+str(i)+".csv"
-	out2 = ji_matrix(sketch1, sketch2, out_name)
+if not skip_est:
+	for i in k_sizes:
+		sketch1 = get_ce_lists(query_list, i, rev_comp)
+		sketch2 = get_ce_lists(ref_list, i, rev_comp)
+		out_name = "est_JI_k" + str(i) + ".csv"
+		out2 = ji_matrix(sketch1, sketch2, out_name)
 
-
-
-# get the bias factor: work on full kmer set (not the random sample) by kmc
-### to calculate the bias factor, we need 4 things:
-### 1. | A overlap B |
-### 2. | A union B |
-### 3. E(RE on A/capB)
-### 4. E(RE on A/cupB)
-### 1,2 are already there from the GT_JI calculation by kmc (keep intermediate!!!)
-### 3,4 can be obtained by grepping kmers of k_small from kmers of k_large using prefix: grep ^
-def get_bias_factor(file1, file2, maxk, truncated_k, keep_intermediate = False):
-	"""
-	:param file1: 1 query file
-	:param file2: 1 ref file
-	:param maxk: full kmer length (usually 60)
-	:param truncated_k: truncated kmer length (e.g. 60 -> 55)
-	:return: bias factor from maxk -> truncated_k between the 2 input files
-	"""
-	file1 = os.path.basename(file1)
-	file2 = os.path.basename(file2)
-	folder_k_small = f"{temp_dir}/kmc_output_{file1}_k_{truncated_k}_against_{file2}_k_{truncated_k}"
-	folder_k_large = f"{temp_dir}/kmc_output_{file1}_k_{maxk}_against_{file2}_k_{maxk}"
-	
-	### get cardinality
-	res = subprocess.run(f"cat {folder_k_small}/temp_dump_intersect | wc -l | cut -f 1", shell=True, capture_output=True)
-	cardi_ksmall_cap = int(res.stdout)
-	res = subprocess.run(f"cat {folder_k_small}/temp_dump_union | wc -l | cut -f 1", shell=True, capture_output=True)
-	cardi_ksmall_cup = int(res.stdout)
-	
-	### get right extension count from k_large union set
-	### RE input of ksmall cap
-	res = subprocess.run(f"cut -f 1 {folder_k_small}/temp_dump_intersect | awk \'{{ print \"^\"$1 }}\' >> temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt", shell=True)
-	### RE input of ksmall cup
-	res = subprocess.run(f"cut -f 1 {folder_k_small}/temp_dump_union | awk \'{{ print \"^\"$1 }}\' >> temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt",shell=True)
-	
-	### RE count of ksmall cap
-	res = subprocess.run(f"grep -f temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt {folder_k_large}/temp_dump_union | wc -l | cut -f 1", shell=True, capture_output=True)
-	RE_cap = int(res.stdout)
-	### RE count of ksmall cup
-	res = subprocess.run(f"grep -f temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt {folder_k_large}/temp_dump_union | wc -l | cut -f 1", shell=True, capture_output=True)
-	RE_cup = int(res.stdout)
-	
-	### bias factor
-	bias_calculation = (RE_cap * 1.0 / cardi_ksmall_cap) / (RE_cup * 1.0 / cardi_ksmall_cup)
-	
-	### clean files
-	if not keep_intermediate:
-		os.remove(f"temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt")
-		os.remove(f"temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt")
-	
-	print(bias_calculation)
-	return bias_calculation
-
-def unwrap_bias_factor_vector(arg):
-	return get_bias_factor(arg[0], arg[1], arg[2], arg[3])
-
-def get_bias_factor_vector(input_file, other_list, maxk, truncated_k):
-	pool = Pool(processes=num_threads)
-	Y = np.array(pool.map(unwrap_bias_factor_vector, zip([input_file] * len(other_list), other_list, [maxk] * len(other_list), [truncated_k] * len(other_list))))
-	pool.terminate()
-	return Y
-
-def bias_factor_matrix(list1, list2, input_k, out_file_name):
+### for bias factor calculation: same to trunc JI, but separate here for testing purpose
+def bias_matrix(list1, list2, out_file_name):
 	lst = []
 	row_name = []
-	col_name = [os.path.basename(list2[i]) for i in range(len(list2))]
+	col_name = [os.path.basename(list2[i].input_file_name) for i in range(len(list2))]
 	for i in range(len(list1)):
-		name = os.path.basename(list1[i])
+		name = os.path.basename(list1[i].input_file_name)
 		row_name.append(name)
-		Y = get_bias_factor_vector(list1[i], list2, ksize, input_k)     # ksize is the input maxk variable
+		Y = list1[i].bias_vector(list2, num_threads)
 		lst.append(Y)
 	df = pd.DataFrame(lst)
 	df.columns = col_name
@@ -512,9 +555,20 @@ def bias_factor_matrix(list1, list2, input_k, out_file_name):
 	df.to_csv(out_file_name, index=True, encoding='utf-8')
 	return df
 
-for k in k_sizes:
-	out_name = "bias_factor_of_k"+str(k)+"_against_k"+str(ksize)+".csv"
-	bias_factor_matrix(query_list, ref_list, k, out_name)
+sketch1 = get_ce_lists(query_list, ksize, rev_comp, full_kmer=True)
+sketch2 = get_ce_lists(ref_list, ksize, rev_comp, full_kmer=True)
+rev_k_sizes = k_sizes.copy()
+rev_k_sizes.reverse()
+if rev_k_sizes[0] == ksize:  # don't need the maxk for bias factor
+	rev_k_sizes.remove(ksize)
+for i in rev_k_sizes:
+	bf_truncation(sketch1, i)
+	bf_truncation(sketch2, i)
+	out_name = "bias_factor_k" + str(i) + "_to_k" + str(ksize) + ".csv"
+	out1 = bias_matrix(sketch1, sketch2, out_name)
+
+### get bias factor
+
 
 
 
@@ -554,4 +608,132 @@ def f3_test_truncation():
 	E1.brute_force_truncation(3)
 	print(E1._kmers)
 	assert E1._kmers == ['AAT', 'TTA']
+
+### test bias factor
+def f4_test_bias_calculation():
+	# no conflux
+	E1 = JI_CountEstimator(n=3, ksize=5, rev_comp=False, full_kmer=True)
+	E2 = JI_CountEstimator(n=3, ksize=5, rev_comp=False, full_kmer=True)
+	E1.add_sequence("AAAAA", update_full=True)
+	E1.add_sequence("TTTTT", update_full=True)
+	E1.add_sequence("CCCCC", update_full=True)
 	
+	E2.add_sequence("AAATT", update_full=True)
+	E2.add_sequence("TTTGG", update_full=True)
+	E2.add_sequence("CCCGG", update_full=True)
+	E1.brute_force_truncation(3)
+	E2.brute_force_truncation(3)
+	assert E1.calculate_bias_factor(E2) == 1.0 #no dup introduced, get 1
+	
+	# with dup
+	E3 = JI_CountEstimator(n=3, ksize=5, rev_comp=False, full_kmer=True)
+	E4 = JI_CountEstimator(n=3, ksize=5, rev_comp=False, full_kmer=True)
+	E3.add("AAAAA", update_full=True)
+	E3.add("AAATT", update_full=True)
+	E3.add("AAAGG", update_full=True)
+	
+	E4.add("AAACC", update_full=True)
+	E4.add("GGGTC", update_full=True)
+	E4.add("GGGCC", update_full=True)
+	E3.brute_force_truncation(3)
+	E4.brute_force_truncation(3)
+	assert E3.calculate_bias_factor(E4) == (4*1.0) / (6/2)
+	
+	
+
+#################################
+# back up: grep seems too slow for RE finding, need to change a way
+# get the bias factor: work on full kmer set (not the random sample) by kmc
+### to calculate the bias factor, we need 4 things:
+### 1. | A overlap B |
+### 2. | A union B |
+### 3. E(RE on A/capB)
+### 4. E(RE on A/cupB)
+### 1,2 are already there from the GT_JI calculation by kmc (keep intermediate!!!)
+### 3,4 can be obtained by grepping kmers of k_small from kmers of k_large using prefix: grep ^
+# def get_bias_factor(file1, file2, maxk, truncated_k, keep_intermediate=False):
+# 	"""
+# 	:param file1: 1 query file
+# 	:param file2: 1 ref file
+# 	:param maxk: full kmer length (usually 60)
+# 	:param truncated_k: truncated kmer length (e.g. 60 -> 55)
+# 	:return: bias factor from maxk -> truncated_k between the 2 input files
+# 	"""
+# 	file1 = os.path.basename(file1)
+# 	file2 = os.path.basename(file2)
+# 	folder_k_small = f"{temp_dir}/kmc_output_{file1}_k_{truncated_k}_against_{file2}_k_{truncated_k}"
+# 	folder_k_large = f"{temp_dir}/kmc_output_{file1}_k_{maxk}_against_{file2}_k_{maxk}"
+#
+# 	### get cardinality
+# 	res = subprocess.run(f"cat {folder_k_small}/temp_dump_intersect | wc -l | cut -f 1", shell=True,
+# 	                     capture_output=True)
+# 	cardi_ksmall_cap = int(res.stdout)
+# 	res = subprocess.run(f"cat {folder_k_small}/temp_dump_union | wc -l | cut -f 1", shell=True, capture_output=True)
+# 	cardi_ksmall_cup = int(res.stdout)
+#
+# 	### get right extension count from k_large union set
+# 	### RE input of ksmall cap
+# 	res = subprocess.run(
+# 		f"cut -f 1 {folder_k_small}/temp_dump_intersect | awk \'{{ print \"^\"$1 }}\' >> temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt",
+# 		shell=True)
+# 	### RE input of ksmall cup
+# 	res = subprocess.run(
+# 		f"cut -f 1 {folder_k_small}/temp_dump_union | awk \'{{ print \"^\"$1 }}\' >> temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt",
+# 		shell=True)
+#
+# 	### RE count of ksmall cap
+# 	res = subprocess.run(
+# 		f"grep -f temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt {folder_k_large}/temp_dump_union | wc -l | cut -f 1",
+# 		shell=True, capture_output=True)
+# 	RE_cap = int(res.stdout)
+# 	### RE count of ksmall cup
+# 	res = subprocess.run(
+# 		f"grep -f temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt {folder_k_large}/temp_dump_union | wc -l | cut -f 1",
+# 		shell=True, capture_output=True)
+# 	RE_cup = int(res.stdout)
+#
+# 	### bias factor
+# 	bias_calculation = (RE_cap * 1.0 / cardi_ksmall_cap) / (RE_cup * 1.0 / cardi_ksmall_cup)
+#
+# 	### clean files
+# 	if not keep_intermediate:
+# 		os.remove(f"temp_re_input_intersect_{file1}_{file2}_k{truncated_k}.txt")
+# 		os.remove(f"temp_re_input_union_{file1}_{file2}_k{truncated_k}.txt")
+#
+# 	print(bias_calculation)
+# 	return bias_calculation
+#
+#
+# def unwrap_bias_factor_vector(arg):
+# 	return get_bias_factor(arg[0], arg[1], arg[2], arg[3])
+#
+#
+# def get_bias_factor_vector(input_file, other_list, maxk, truncated_k):
+# 	pool = Pool(processes=num_threads)
+# 	Y = np.array(pool.map(unwrap_bias_factor_vector,
+# 	                      zip([input_file] * len(other_list), other_list, [maxk] * len(other_list),
+# 	                          [truncated_k] * len(other_list))))
+# 	pool.terminate()
+# 	return Y
+#
+#
+# def bias_factor_matrix(list1, list2, input_k, out_file_name):
+# 	lst = []
+# 	row_name = []
+# 	col_name = [os.path.basename(list2[i]) for i in range(len(list2))]
+# 	for i in range(len(list1)):
+# 		name = os.path.basename(list1[i])
+# 		row_name.append(name)
+# 		Y = get_bias_factor_vector(list1[i], list2, ksize, input_k)  # ksize is the input maxk variable
+# 		lst.append(Y)
+# 	df = pd.DataFrame(lst)
+# 	df.columns = col_name
+# 	df.index = row_name
+# 	df.to_csv(out_file_name, index=True, encoding='utf-8')
+# 	return df
+#
+#
+# for k in k_sizes:
+# 	out_name = "bias_factor_of_k" + str(k) + "_against_k" + str(ksize) + ".csv"
+# 	bias_factor_matrix(query_list, ref_list, k, out_name)
+
