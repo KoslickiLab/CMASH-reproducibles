@@ -107,6 +107,13 @@ def check_files(input_file):
 	out_list = sorted(out_list, key=os.path.basename)
 	return(out_list)
 
+# fast cardinality count
+def estimate_genome_size(genome, ksize):
+	hll = khmer.HLLCounter(0.01, ksize)
+	hll.consume_seqfile(genome)
+	return hll.estimate_cardinality()
+
+
 
 
 ### GT JI
@@ -194,10 +201,61 @@ def gt_ji_matrix(list1, list2, input_k, out_file_name, thread=6):
 
 
 
+### Est JI
+### trunc_JI and est_JI uses same functions to call
+# wrapper for est_JI from JI_CE object
+def unwrap_jaccard_vector(arg):
+	return arg[0].est_jaccard(arg[1])
+# get JI vector: defined inside the JI_CE object
+# get JI matrix
+def ji_matrix(list1, list2, out_file_name, thread=6):
+	lst = []
+	row_name = []
+	col_name = [os.path.basename(list2[i].input_file_name) for i in range(len(list2))]
+	for i in range(len(list1)):
+		name = os.path.basename(list1[i].input_file_name)
+		row_name.append(name)
+		Y = list1[i].ji_vector(list2, thread=thread)
+		lst.append(Y)
+	df = pd.DataFrame(lst)
+	df.columns = col_name
+	df.index = row_name
+	df.to_csv(out_file_name, index=True, encoding='utf-8')
+	return df
+
+
+
+### Trunc_JI (from streaming kmers to CI, then transfer CI to JI)
+# wrapper (copy from JI)
+def unwrap_trunc_ji_from_ci_vector(arg):
+	return arg[0].stream_cmash_for_ji(arg[1])
+# get trunc_JI matrix
+def cmash_ji_matrix(list1, list2, out_file_name, thread=6):
+	lst = []
+	row_name = []
+	col_name = [os.path.basename(list2[i].input_file_name) for i in range(len(list2))]
+	for i in range(len(list1)):
+		name = os.path.basename(list1[i].input_file_name)
+		row_name.append(name)
+		Y = list1[i].cmash_ji_vector(list2, thread=thread)
+		lst.append(Y)
+	df = pd.DataFrame(lst)
+	df.columns = col_name
+	df.index = row_name
+	df.to_csv(out_file_name, index=True, encoding='utf-8')
+	return df
+# CI to JI conversion
+def containment_to_jaccard(C_est, CE1, CE2):
+	A = CE1.cardinality
+	B = CE2.cardinality
+	return C_est * A * 1.0 / (A + B - C_est * A)
+
+
+
 ### Create JI_CE object
 class JI_CountEstimator(object):
 	def __init__(self, n=None, max_prime=9999999999971, ksize=None, input_file_name=None, rev_comp=True,
-	             full_kmer=False):
+				 full_kmer=False):
 		if n is None:
 			raise Exception
 		if ksize is None:
@@ -219,13 +277,14 @@ class JI_CountEstimator(object):
 		
 		# read sequence by "screed" and load them into the sketch (replace parse_file function in L105)
 		if self.input_file_name:
+			self.cardinality = estimate_genome_size(input_file_name, self.ksize)
 			for record in screed.open(self.input_file_name):
 				self.add_sequence(record.sequence, self.full_kmer)
 	
 	def add_sequence(self, seq, update_full=False):
 		seq = seq.upper()  # transfer to upper case (just in case)
 		seq_split_onlyACTG = re.compile('[^ACTG]').split(seq)  # get rid of non-ATCG letter
-		if len(seq_split_onlyACTG) == 1:
+		if len(seq_split_onlyACTG) == 1:    # this if seems unnecessary
 			if len(seq) >= self.ksize:
 				for kmer in kmers(seq, self.ksize):
 					self.add(kmer, update_full)
@@ -310,6 +369,7 @@ class JI_CountEstimator(object):
 		elif new_ksize < self.ksize:
 			# data to be updated after the truncation:
 			self.ksize = new_ksize
+			self.cardinality = estimate_genome_size(self.input_file_name, new_ksize)
 			while self._mins[-1] == self.p:  # rm unused cells, otherwise empty cell (though very rare) has hash value 0
 				self._mins.pop()
 				self._kmers.pop()
@@ -378,31 +438,48 @@ class JI_CountEstimator(object):
 		Y = np.array(pool.map(unwrap_bias_vector, zip([self] * len(other_list), other_list)))
 		pool.terminate()
 		return Y
+	
+	def stream_cmash_for_ji(self, other):
+		if self.ksize != other.ksize:
+			raise Exception("different k-mer sizes - cannot compare")
+		if self.p != other.p:
+			raise Exception("different primes - cannot compare")
+		
+		A_kmers = set([x[0:self.ksize] for x in self._kmers])   #unnessary, just a double security
+		A_matches = dict()
+		for kmer in A_kmers:
+			if self.rev_comp:
+				kmer = min(kmer, khmer.reverse_complement(kmer))
+			A_matches[kmer] = 0 # count purpose
+		
+		# streaming all other kmers for CI (can't do JI directly)
+		for record in screed.open(other.input_file_name):
+			seq = record.sequence
+			seq = seq.upper()
+			seq_split_onlyACTG = re.compile('[^ACTG]').split(seq)
+			for sub_seq in seq_split_onlyACTG:
+				for i in range(len(sub_seq) - self.ksize + 1):
+					# enumerate all kmers
+					kmer = sub_seq[i:i + self.ksize]
+					if self.rev_comp:
+						kmer = min(kmer, khmer.reverse_complement(kmer))
+					if kmer in A_matches:
+						A_matches[kmer] = 1
+						
+		# return results
+		C_est = np.sum(list(A_matches.values())) / len(A_kmers)
+		J_est = containment_to_jaccard(C_est, self, other)
+		print(C_est)
+		print(J_est)
+		return J_est
+	
+	def cmash_ji_vector(self, other_list, thread=6):
+		pool = Pool(processes=thread)
+		Y = np.array(pool.map(unwrap_trunc_ji_from_ci_vector, zip([self] * len(other_list), other_list)))
+		pool.terminate()
+		return Y
 
-
-### trunc_JI and est_JI uses same functions to call
-# wrapper for trunc_JI from JI_CE object
-def unwrap_jaccard_vector(arg):
-	return arg[0].est_jaccard(arg[1])
-# get JI vector: defined inside the JI_CE object
-# get JI matrix
-def ji_matrix(list1, list2, out_file_name, thread=6):
-	lst = []
-	row_name = []
-	col_name = [os.path.basename(list2[i].input_file_name) for i in range(len(list2))]
-	for i in range(len(list1)):
-		name = os.path.basename(list1[i].input_file_name)
-		row_name.append(name)
-		Y = list1[i].ji_vector(list2, thread=thread)
-		lst.append(Y)
-	df = pd.DataFrame(lst)
-	df.columns = col_name
-	df.index = row_name
-	df.to_csv(out_file_name, index=True, encoding='utf-8')
-	return df
-
-
-
+		
 ### Bias factor
 # wrapper for bias factor from JI_CE object
 def unwrap_bias_vector(arg):
@@ -513,17 +590,16 @@ def f4_test_bias_calculation():
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="This script creates training/reference sketches for each FASTA/Q file"
-	                                             " listed in the input file.",
-	                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+												 " listed in the input file.",
+									 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('-q', '--query', help="Path to the query file.")
 	parser.add_argument('-r', '--ref', help="Path to the ref file.")
 	parser.add_argument('-f', '--fast', type=str, help="Skipping steps to build GT_TST and CE.h5 file", default="False")
 	parser.add_argument('-c', '--rev_comp', type=str, help="Whether to keep the reverse complementary", default="True")
-	parser.add_argument('-n', '--num_hashes', type=int, help="Number of hashes to use.", default=1000)
+	parser.add_argument('-n', '--num_hashes', type=int, help="Number of hashes to use.", default=2000)
 	parser.add_argument('-k', '--k_size', type=int, help="k-mer size", default=60)
 	parser.add_argument('-g', '--k_range', type=str, help="k-mer range", default="10-60-5")
-	parser.add_argument('-t', '--threads', type=int, help="Number of threads to use",
-	                    default=min(64, int(multiprocessing.cpu_count() / 2)))
+	parser.add_argument('-t', '--threads', type=int, help="Number of threads to use", default=min(24, int(multiprocessing.cpu_count() / 2)))
 	parser.add_argument('-p', '--prime', help='Prime (for modding hashes)', default=9999999999971)
 	parser.add_argument('-z', '--skip_gt', type=str, help="Skip GT JI calculation", default="False")
 	parser.add_argument('-x', '--skip_est', type=str, help="Skip Est JI calculation", default="False")
@@ -568,7 +644,7 @@ if __name__ == '__main__':
 	
 	skip_bias = skip_bias == 'True'
 	if skip_bias:
-		print("Skipping all Trunc JI calculation steps")
+		print("Skipping all bias factor calculation steps")
 	
 	query_file_names = os.path.abspath(query_file)
 	if not os.path.exists(query_file_names):
@@ -581,6 +657,30 @@ if __name__ == '__main__':
 	query_list = check_files(query_file)
 	ref_list = check_files(ref_file)
 	
+	# get est_JI
+	if not skip_est:
+		print("Calculating est_JI")
+		for i in k_sizes:
+			print("Running est_JI from CMash for k" + str(i))
+			sketch1 = get_ce_lists(query_list, i, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
+			sketch2 = get_ce_lists(ref_list, i, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
+			out_name = "est_JI_k" + str(i) + ".csv"
+			out2 = cmash_ji_matrix(sketch1, sketch2, out_name, thread=num_threads)
+	
+	# run trunc_JI by JI_CE object
+	if not skip_trunc:
+		print("Calculating trunc_JI")
+		sketch1 = get_ce_lists(query_list, ksize, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
+		sketch2 = get_ce_lists(ref_list, ksize, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
+		rev_k_sizes = k_sizes.copy()
+		rev_k_sizes.reverse()
+		for i in rev_k_sizes:
+			print("Running trunc_JI from CMash for k" + str(i))
+			bf_truncation(sketch1, i)
+			bf_truncation(sketch2, i)
+			out_name = "trunc_JI_k" + str(i) + ".csv"
+			out1 = cmash_ji_matrix(sketch1, sketch2, out_name, thread=num_threads)
+			
 	# create kmc database for all files for all k values
 	if not fast_mode:
 		print("Creating kmc database for JI test")
@@ -593,32 +693,14 @@ if __name__ == '__main__':
 	
 	# run GT_JI by kmc
 	if not skip_gt:
+		print("Calculating GT JI")
 		for k in k_sizes:
 			out_name = "GroundTruth_JI_k" + str(k) + ".csv"
 			gt_ji_matrix(query_list, ref_list, k, out_name, thread=num_threads)
 	
-	# run trunc_JI by JI_CE object
-	if not skip_trunc:
-		sketch1 = get_ce_lists(query_list, ksize, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
-		sketch2 = get_ce_lists(ref_list, ksize, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
-		rev_k_sizes = k_sizes.copy()
-		rev_k_sizes.reverse()
-		for i in rev_k_sizes:
-			bf_truncation(sketch1, i)
-			bf_truncation(sketch2, i)
-			out_name = "trunc_JI_k" + str(i) + ".csv"
-			out1 = ji_matrix(sketch1, sketch2, out_name, thread=num_threads)
-	
-	# get est_JI
-	if not skip_est:
-		for i in k_sizes:
-			sketch1 = get_ce_lists(query_list, i, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
-			sketch2 = get_ce_lists(ref_list, i, rev_comp, thread=num_threads, max_h=max_h, prime=prime)
-			out_name = "est_JI_k" + str(i) + ".csv"
-			out2 = ji_matrix(sketch1, sketch2, out_name, thread=num_threads)
-	
 	# get bias factor: same to trunc JI, but separate here for testing purpose
 	if not skip_bias:
+		print("Calculatin bias factor")
 		sketch1 = get_ce_lists(query_list, ksize, rev_comp, full_kmer=True, thread=num_threads, max_h=max_h, prime=prime)
 		sketch2 = get_ce_lists(ref_list, ksize, rev_comp, full_kmer=True, thread=num_threads, max_h=max_h, prime=prime)
 		rev_k_sizes = k_sizes.copy()
@@ -632,13 +714,6 @@ if __name__ == '__main__':
 			out1 = bias_matrix(sketch1, sketch2, out_name, thread=num_threads)
 
 ################# validate 2 files
-#for the 2 files:
-# GT_JI ~= Est_JI = 0.676 (no revcompe GT=0.02)
-# But Trunc_JI = 0.002, which is the rev_comp=False results of GT, but I do have rev_comp for truncation
-#
-# os.chdir("./test_JI_bias_factor/validate_trunc_result")
-# file1 = 'GCA_001721725.1_ASM172172v1_genomic.fna'
-# file2 = 'GCA_001022035.1_ASM102203v1_genomic.fna'
 # k_sizes = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
 # rev_comp = True
 # num_threads=6
@@ -646,68 +721,22 @@ if __name__ == '__main__':
 # ksize=60
 # max_h=1000
 # full_kmer = False
-#
-# def get_all_kmers(input_file, temp_k, use_rev_comp=True):
-# 	temp_dict = dict()
-# 	for record in screed.open(input_file):
-# 		for kmer in kmers(record.sequence, temp_k):
-# 			if use_rev_comp:
-# 				kmer = min(kmer, khmer.reverse_complement(kmer))
-# 			if kmer in temp_dict:
-# 				temp_dict[kmer] += 1
-# 			else:
-# 				temp_dict[kmer] = 1
-# 	return temp_dict
-#
-# def output_ji(kmer_dict1, kmer_dict2):
-# 	intersection = len(set(kmer_dict1.keys()).intersection(set(kmer_dict2.keys())))
-# 	union = len(set(kmer_dict1.keys()).union(set(kmer_dict2.keys())))
-# 	out_ji = intersection*1.0/union
-# 	print(out_ji)
-#
-# temp_k = 60
-# a_kmers = get_all_kmers(file1, temp_k, True)
-# b_kmers = get_all_kmers(file2, temp_k, True)
-# output_ji(a_kmers, b_kmers)
-# # k20 result: 0.6766208404617552
-# # k60 result: 0.5005968561188748
+#################
+def get_all_kmers(input_file, temp_k, use_rev_comp=True):
+	temp_dict = dict()
+	for record in screed.open(input_file):
+		for kmer in kmers(record.sequence, temp_k):
+			if use_rev_comp:
+				kmer = min(kmer, khmer.reverse_complement(kmer))
+			if kmer in temp_dict:
+				temp_dict[kmer] += 1
+			else:
+				temp_dict[kmer] = 1
+	return temp_dict
 
-# Est_JI at k 20 rev_comp = True
-# file_list = [file1, file2]
-# temp_k = 60
-# sketch1 = get_ce_lists(file_list, temp_k, True, max_h=max_h, prime=prime)
-# obj1 = sketch1[0]
-# obj2 = sketch1[1]
-# obj1.est_jaccard(obj2)
-# # k20 result: 0.676 (match)
-# # k60 result: 0.492 (match)
-#
-# #Trunc JI jumps smaller
-# temp_k = 60
-# sketch1 = get_ce_lists(file_list, temp_k, True, max_h=max_h, prime=prime)
-# obj1 = sketch1[0]
-# obj2 = sketch1[1]
-# obj1.est_jaccard(obj2)
-# k60_kmer1 = obj1._kmers
-# k60_kmer2 = obj2._kmers
-# # est 0.492
-# # trun
-# bf_truncation(sketch1, 20)
-# obj1.est_jaccard(obj2)
-# ## trunc k20 result: 0.492 vs 0.676
-# k20_kmer1 = obj1._kmers
-# k20_kmer2 = obj2._kmers
-#
-# bf_truncation(sketch1, 10)
-# obj1.est_jaccard(obj2)
-# k10_kmer1 = obj1._kmers
-# k10_kmer2 = obj2._kmers
-#
-# # check kmers:
-# # no shared prefix found: 1 on 1 projection
-# len(set(k60_kmer1).intersection(set(k60_kmer2)))
-# len(set(k20_kmer1).intersection(set(k20_kmer2)))
-# #
-
-
-
+def output_ji(kmer_dict1, kmer_dict2):
+	intersection = len(set(kmer_dict1.keys()).intersection(set(kmer_dict2.keys())))
+	union = len(set(kmer_dict1.keys()).union(set(kmer_dict2.keys())))
+	out_ji = intersection*1.0/union
+	print(out_ji)
+	
