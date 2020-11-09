@@ -426,7 +426,10 @@ class JI_CountEstimator(object):
 				ksmall_union[kmer] += 1
 		
 		# bias factor
-		numerator = sum(ksmall_intersect.values()) * 1.0 / len(ksmall_intersect)
+		if len(ksmall_intersect) == 0:
+			numerator = 0
+		else:
+			numerator = sum(ksmall_intersect.values()) * 1.0 / len(ksmall_intersect)
 		denominator = sum(ksmall_union.values()) * 1.0 / len(ksmall_union)
 		bias_factor = numerator / denominator
 		print(numerator)
