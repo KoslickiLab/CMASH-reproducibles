@@ -1,0 +1,6 @@
+# ignore files in gitignore
+
+# ignore the conda env for WTST
+src/try_WTST/py37_WTST/
+
+
