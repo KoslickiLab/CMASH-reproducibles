@@ -20,5 +20,12 @@ rm -rf ./git_repo 2>/dev/null
 rm -r conda_env 2>/dev/null
 
 
+
+### delete running folders from WABI 2021 CMash manuscript
+cd ${pipe_path}/../1_WABI_2021_CMash_manuscript/
+ls -d CMash_out_* 2>/dev/null && rm -r CMash_out_*
+
+
+
 echo "All dependencies have been removed."
 date
