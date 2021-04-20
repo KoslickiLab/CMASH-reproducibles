@@ -13,5 +13,12 @@ repo=$(echo ${pipe_path%/src})
 
 
 
+### uninstall conda and git
+cd ${pipe_path}
+rm -r GenBank_db 2>/dev/null
+rm -rf ./git_repo 2>/dev/null
+rm -r conda_env 2>/dev/null
+
+
 echo "All dependencies have been removed."
 date

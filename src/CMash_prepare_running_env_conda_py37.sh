@@ -3,21 +3,25 @@
 # usage: bash <pipe>
 
 
-# location
-pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-conda_path=${pipe_path}/conda_env
-git_path=${pipe_path}/git_repo
-
 
 # to call conda inside a bash
 temp=$(which conda)
 conda_path=$(echo ${temp%/*bin/conda})
 if [ -f ${conda_path}/etc/profile.d/conda.sh ]; then
-	. ${conda_path}/etc/profile.d/conda.sh
+        . ${conda_path}/etc/profile.d/conda.sh
 else
-	echo "ERROR: conda path can't be corrected identified!!!"
-	exit 1
+        echo "ERROR: conda path can't be corrected identified!!!"
+        exit 1
 fi
+unset conda_path
+
+
+
+# location
+pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+conda_path=${pipe_path}/conda_env
+git_path=${pipe_path}/git_repo
+
 
 
 # install CMash env
@@ -32,6 +36,7 @@ conda install -y -c bioconda insilicoseq
 conda deactivate
 
 
+
 # download NCBI taxdump for taxonkit
 cd CMash_env_py37
 mkdir -p taxonkit_ncbi
@@ -40,12 +45,12 @@ wget ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 tar -xzf taxdump.tar.gz && rm taxdump.tar.gz
 
 
+
 # download CMash git
 cd ${git_path}
 git clone https://github.com/dkoslicki/CMash.git
 
 
+
 date
 echo "pipe done"
-
-

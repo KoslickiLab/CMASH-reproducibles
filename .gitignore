@@ -1,9 +1,15 @@
 #ignore files in gitignore
 
+
+### main folder
+.DS_Store
+
+
 ### src folder
 src/conda_env/*
 src/git_repo/*
 src/GenBank_db/*
+
 
 ### WABI2021
 

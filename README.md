@@ -12,7 +12,7 @@ git clone https://github.com/KoslickiLab/CMASH-reproducibles.git
 ```
 3. Get required tools/resources (only need to do once)
 ```
-cd src
+cd CMASH-reproducibles/src
 bash 0.install_all_required_dependency_run_once.sh
 ```
 

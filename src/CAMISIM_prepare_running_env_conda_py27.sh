@@ -3,6 +3,20 @@
 # usage: bash <pipe>
 
 
+
+# to call conda inside a bash
+temp=$(which conda)
+conda_path=$(echo ${temp%/*bin/conda})
+if [ -f ${conda_path}/etc/profile.d/conda.sh ]; then
+        . ${conda_path}/etc/profile.d/conda.sh
+else
+        echo "ERROR: conda path can't be corrected identified!!!"
+        exit 1
+fi
+unset conda_path
+
+
+
 # location
 pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
 conda_path=${pipe_path}/conda_env
@@ -30,16 +44,6 @@ sed -i 's/max_strains_per_otu=1/max_strains_per_otu=100/g' templete_mini_config.
 sed -i 's#tools/samtools-1.3/samtools#../../conda_env/cami_env_py27/bin/samtools#g' templete_mini_config.ini
 
 
-# to call conda inside a bash
-temp=$(which conda)
-conda_path=$(echo ${temp%/*bin/conda})
-if [ -f ${conda_path}/etc/profile.d/conda.sh ]; then
-        . ${conda_path}/etc/profile.d/conda.sh
-else
-        echo "ERROR: conda path can't be corrected identified!!!"
-        exit 1
-fi
-
 
 # prepare conda env for CAMISIM
 cd ${conda_path}
@@ -52,3 +56,5 @@ conda deactivate
 
 
 
+date
+echo "Finish building CAMI conda env"
