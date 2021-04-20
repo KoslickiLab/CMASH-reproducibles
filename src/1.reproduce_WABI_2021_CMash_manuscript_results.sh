@@ -14,6 +14,13 @@ echo "This step may take a long time, it might be better to use nohup"
 # the trunc_CI can be separate out from Bias_factor step to fasten the process
 sleep 5 
 echo "Pipe start!"
+
+
+
+### Step1. download data
+time_tag=$(date +"%Y%m%d_%H")
+mkdir -p CMash_out_${time_tag}
+cd CMash_out_${time_tag}
 mkdir final_output
 out_dir=$PWD
 final=${out_dir}/final_output
@@ -22,10 +29,6 @@ mkdir -p ${final}/fig_1f_3_input
 
 
 
-### Step1. download data
-time_tag=$(date +"%Y%m%d_%H")
-mkdir -p CMash_out_${time_tag}
-cd CMash_out_${time_tag}
 echo "1. Downloading genome files!!!!!!"
 sleep 2
 # download 30 Brucella data
@@ -36,7 +39,7 @@ for file in $(cut -f 3 ../data/Brucella_genus_30_genomes.txt); do
 done
 mkdir Brucella_30 \
 	&& mv GCA*_genomic.fna.gz ./Brucella_30 \
-	&& cd ./Brucella_30 \ 
+	&& cd ./Brucella_30 \
 	&& readlink -f GCA*_genomic.fna.gz > ../fullpath_Brucella_30.txt \
 	&& cd ..
 
