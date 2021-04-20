@@ -1,6 +1,11 @@
-# ignore files in gitignore
+#ignore files in gitignore
 
-# ignore the conda env for WTST
-src/try_WTST/py37_WTST/
+### src folder
+src/conda_env/*
+src/git_repo/*
+src/GenBank_db/*
+
+### WABI2021
+
 
 
