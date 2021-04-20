@@ -1,0 +1,200 @@
+2760978	Pseudoalteromonas sp. SG41-2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/164/535/GCA_014164535.1_ASM1416453v1
+1952946	Prolixibacteraceae bacterium UBA4818	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/402/395/GCA_002402395.1_ASM240239v1
+610254	Desulfosoma caldarium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/751/385/GCA_003751385.1_ASM375138v1
+1817856	Candidatus Eisenbacteria bacterium RBG_16_71_46	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/780/165/GCA_001780165.1_ASM178016v1
+1297799	Meiothermus ruber H328	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/346/125/GCA_000346125.2_ASM34612v2
+582851	Oceanobacillus sojae	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/162/665/GCA_900162665.1_PRJEB6467
+2675751	Paracoccus sp. DK608	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/711/265/GCA_009711265.1_ASM971126v1
+1953072	Saccharospirillaceae bacterium UBA4579	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/387/655/GCA_002387655.1_ASM238765v1
+369791	Mesonia mobilis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/651/475/GCA_014651475.1_ASM1465147v1
+1974784	Candidatus Peregrinibacteria bacterium CG10_big_fil_rev_8_21_14_0_10_36_19	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/772/535/GCA_002772535.1_ASM277253v1
+2783826	Plantibacter sp. VKM Ac-2876	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/015/350/715/GCA_015350715.1_ASM1535071v1
+1952586	Porphyromonadaceae bacterium UBA5907	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/432/365/GCA_002432365.1_ASM243236v1
+1798521	Candidatus Kaiserbacteria bacterium RIFCSPLOWO2_02_FULL_54_13	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/783/465/GCA_001783465.1_ASM178346v1
+1897052	Bacteroides sp. 44_46	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/915/465/GCA_001915465.1_ASM191546v1
+1950311	Bacillales bacterium UBA5913	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/431/225/GCA_002431225.1_ASM243122v1
+1736526	Pseudomonas sp. Root401	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/425/105/GCA_001425105.1_Root401
+2496740	Mesorhizobium sp. M7A.F.Ca.CA.002.14.1.2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/998/565/GCA_003998565.1_ASM399856v1
+1109412	Brenneria goodwinii	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/291/445/GCA_002291445.1_ASM229144v1
+371602	Aerococcus suis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/176/325/GCA_900176325.1_IMG-taxon_2622736423_annotated_assembly
+2753617	Pseudomonas sp. EZ-C24	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/525/325/GCA_014525325.1_ASM1452532v1
+363953	Chelatococcus sambhunathii	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/418/005/GCA_001418005.1_ASM141800v1
+1445606	Mycobacterium tuberculosis str. Kurono	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/828/995/GCA_000828995.1_ASM82899v1
+1439210	Streptococcus pyogenes ABC020052291	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/629/705/GCA_000629705.1_Stre_pyog_ABC020052291_V1
+1438766	Klebsiella pneumoniae CHS 60	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/633/735/GCA_000633735.1_Kleb_pneu_CHS_60_V1
+1946650	Idiomarina sp. UBA6937	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/450/685/GCA_002450685.1_ASM245068v1
+2686361	Polaribacter sp. L3A8	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/796/785/GCA_009796785.1_ASM979678v1
+1797694	Candidatus Colwellbacteria bacterium RIFCSPLOWO2_12_FULL_44_13	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/817/835/GCA_001817835.1_ASM181783v1
+2783813	Clavibacter sp. VKM Ac-2873	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/015/351/075/GCA_015351075.1_ASM1535107v1
+1911907	bacterium CG10_46_32	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/889/965/GCA_001889965.1_ASM188996v1
+2698829	Sediminibacterium sp. WSJ-3	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/939/225/GCA_009939225.1_ASM993922v1
+1417058	Staphylococcus aureus F63786	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/578/235/GCA_000578235.1_Stap_aure_F63786_V1
+1336250	Hallella seregens ATCC 51272	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/518/545/GCA_000518545.1_ASM51854v1
+1951428	Anaerolineaceae bacterium UBA5344	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/408/015/GCA_002408015.1_ASM240801v1
+2013745	Deltaproteobacteria bacterium HGW-Deltaproteobacteria-18	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/841/885/GCA_002841885.1_ASM284188v1
+2014278	bacterium (Candidatus Gribaldobacteria) CG23_combo_of_CG06-09_8_20_14_all_37_87_8	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/772/215/GCA_002772215.1_ASM277221v1
+2715505	Candidatus Firestonebacteria bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/286/205/GCA_013286205.1_ASM1328620v1
+2735269	Leifsonia sp. C5G2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/359/685/GCA_013359685.1_ASM1335968v1
+1952335	Ruminococcaceae bacterium UBA4831	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/400/265/GCA_002400265.1_ASM240026v1
+1398058	Staphylococcus aureus M1446	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/549/025/GCA_000549025.1_Stap_aure_M1446_V1
+1423506	Mycobacterium tuberculosis BTB09-377	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/658/855/GCA_000658855.1_Myco_tube_BTB09-377_V1
+2740537	Rubrobacteraceae bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/816/455/GCA_013816455.1_ASM1381645v1
+1801991	Candidatus Portnoybacteria bacterium RBG_13_41_18	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/819/475/GCA_001819475.1_ASM181947v1
+1676157	Clostridiales bacterium DTU086	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/513/335/GCA_001513335.1_ASM151333v1
+2654238	Pseudomonas sp. DTU12.1	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/873/475/GCA_009873475.1_ASM987347v1
+1188007	Kingella kingae 11220434	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/283/375/GCA_000283375.1_ASM28337v1
+1676683	Vibrio barjaei	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/639/065/GCA_001639065.2_ASM163906v2
+1425340	Listeria monocytogenes Lm_1889	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/585/835/GCA_000585835.1_Lm1889
+66898	Streptomyces griseostramineus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/203/535/GCA_014203535.1_ASM1420353v1
+76832	Myroides odoratimimus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/481/655/GCA_001481655.1_ASM148165v1
+1947713	Treponema sp. UBA3662	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/373/205/GCA_002373205.1_ASM237320v1
+713049	TM7 phylum sp. oral taxon 346	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/007/845/535/GCA_007845535.1_ASM784553v1
+1423827	Lactobacillus kefiranofaciens subsp. kefiranofaciens DSM 5016 = JCM 6985	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/435/275/GCA_001435275.1_ASM143527v1
+1981674	Pseudomonas sp. R9(2017)	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/113/325/GCA_002113325.1_ASM211332v1
+2576376	Streptococcus sp. 1643	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/006/228/325/GCA_006228325.1_ASM622832v1
+683042	Leucobacter denitrificans	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/396/385/GCA_014396385.1_ASM1439638v1
+2026725	Chromatiales bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/835/405/GCA_009835405.1_ASM983540v1
+1974798	Candidatus Portnoybacteria bacterium CG_4_10_14_0_2_um_filter_43_36	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/792/435/GCA_002792435.1_ASM279243v1
+2731681	Pseudomonas sp. S1-A32-2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/200/955/GCA_013200955.2_ASM1320095v2
+1736589	Mesorhizobium sp. Root695	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/428/185/GCA_001428185.1_Root695
+1581128	Arthrobacter sp. HMSC06H05	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/807/395/GCA_001807395.1_ASM180739v1
+421525	Chryseobacterium haifense	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/816/015/GCA_003816015.1_ASM381601v1
+2053608	Ruminiclostridium sp.	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/444/395/GCA_003444395.1_ASM344439v1
+1566211	Pseudomonas sp. NFPP09	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/119/575/GCA_900119575.1_IMG-taxon_2599185161_annotated_assembly
+1952991	Oceanospirillaceae bacterium UBA7410	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/470/565/GCA_002470565.1_ASM247056v1
+1953082	Succinivibrionaceae bacterium UBA1220	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/309/455/GCA_002309455.1_ASM230945v1
+1947114	Prevotella sp. UBA2762	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/353/125/GCA_002353125.1_ASM235312v1
+2584565	Akkermansia sp. BIOML-A9	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/008/422/465/GCA_008422465.1_ASM842246v1
+69539	Moritella yayanosii	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/465/055/GCA_900465055.1_MORIYA_PRJEB24680v2
+1123023	Pseudonocardia acaciae DSM 45401	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/620/785/GCA_000620785.1_ASM62078v1
+1952313	Ruminococcaceae bacterium UBA3269	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/363/275/GCA_002363275.1_ASM236327v1
+1262694	Alistipes sp. CAG:29	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/435/435/GCA_000435435.1_MGS29
+1053167	Bacillus cereus BAG1O-1	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/399/165/GCA_000399165.1_Baci_cere_BAG1O-1_V1
+134605	Fusobacterium equinum	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/546/395/GCA_001546395.1_ASM154639v1
+1798214	Leifsonia sp. CL154	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/108/465/GCA_900108465.1_IMG-taxon_2639762567_annotated_assembly
+1281074	Escherichia coli HVH 141 (4-5995973)	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/458/075/GCA_000458075.1_Esch_coli_HVH_141_4-5995973_V1
+1802358	Tenericutes bacterium RIFOXYC2_FULL_35_27	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/830/095/GCA_001830095.1_ASM183009v1
+453783	Lysobacter soli	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/755/585/GCA_009755585.1_ASM975558v1
+1952787	Pseudomonadaceae bacterium UBA6596	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/433/585/GCA_002433585.1_ASM243358v1
+2681304	Pseudomonas sp. TDA1	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/737/195/GCA_009737195.1_ASM973719v1
+1797705	Candidatus Curtissbacteria bacterium RBG_13_35_7	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/776/315/GCA_001776315.1_ASM177631v1
+61647	Pluralibacter gergoviae	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/757/785/GCA_000757785.1_ASM75778v1
+2282142	Acidobacteriales bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/821/685/GCA_013821685.1_ASM1382168v1
+1802388	Candidatus Uhrbacteria bacterium RIFCSPHIGHO2_02_FULL_47_44	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/790/825/GCA_001790825.1_ASM179082v1
+2512183	Bacillus sp. BK006	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/004/345/465/GCA_004345465.1_ASM434546v1
+2769485	Parvimonas sp. S3374	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/016/552/165/GCA_016552165.1_ASM1655216v1
+1055192	Comamonas sp. B-9	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/410/635/GCA_000410635.1_ASM41063v1
+2663807	Bradyrhizobium sp. OAE829	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/873/235/GCA_014873235.1_ASM1487323v1
+1946460	Enhydrobacter sp. UBA4101	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/383/255/GCA_002383255.1_ASM238325v1
+2302948	Eubacterium sp. AF19-17	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/603/135/GCA_003603135.1_ASM360313v1
+2576418	Citrobacter sp. wls718	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/005/280/945/GCA_005280945.1_ASM528094v1
+1479	Bacillus smithii	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/050/115/GCA_001050115.1_ASM105011v1
+1158649	Enterococcus faecium EnGen0319	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/394/695/GCA_000394695.1_Ente_faec_Efm_NY1-4_V1
+1121948	Hellea balneolensis DSM 19091	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/428/525/GCA_000428525.1_ASM42852v1
+633415	Aeromonas sanarellii	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/820/085/GCA_000820085.1_PRJEB7037
+1946021	Aminobacterium sp. UBA1031	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/316/915/GCA_002316915.1_ASM231691v1
+1946217	Candidatus Microthrix sp. UBA7903	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/500/535/GCA_002500535.1_ASM250053v1
+2013715	Betaproteobacteria bacterium HGW-Betaproteobacteria-3	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/842/205/GCA_002842205.1_ASM284220v1
+1917971	Sphingosinicella sp.	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/816/585/GCA_013816585.1_ASM1381658v1
+2282154	Geobacteraceae bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/773/645/GCA_009773645.1_ASM977364v1
+878925	Streptomyces sp. 5-10	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/712/245/GCA_014712245.1_ASM1471224v1
+1418416	Staphylococcus aureus M91652	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/606/725/GCA_000606725.1_Stap_aure_M91652_V1
+2685962	Microcystis aeruginosa G13-07	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/996/305/GCA_009996305.1_ASM999630v1
+1413341	Staphylococcus aureus 22846	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/637/615/GCA_000637615.1_Stap_aure_22846_V1
+2013825	Nitrospira bacterium HGW-Nitrospira-1	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/839/535/GCA_002839535.1_ASM283953v1
+1422766	Staphylococcus aureus VET0919S	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/645/535/GCA_000645535.1_Stap_aure_VET0919S_V1
+1388590	Staphylococcus aureus M0804	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/543/905/GCA_000543905.1_Stap_aure_M0804_V1
+1893	Streptomyces atratus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/745/675/GCA_000745675.1_ASM74567v1
+1409765	Staphylococcus aureus DAR5844	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/525/525/GCA_000525525.1_Stap_aure_DAR5844_V1
+658644	Pseudomonas sp. R5-89-07	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/851/685/GCA_003851685.1_ASM385168v1
+1946181	Candidatus Microthrix sp. UBA3506	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/377/455/GCA_002377455.1_ASM237745v1
+1417066	Staphylococcus aureus T77618	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/578/315/GCA_000578315.1_Stap_aure_T77618_V1
+1951093	Flavobacteriales bacterium UBA974	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/292/405/GCA_002292405.1_ASM229240v1
+1946798	Mageeibacillus sp. UBA5747	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/419/145/GCA_002419145.1_ASM241914v1
+1946870	Methylophaga sp. UBA2012	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/335/235/GCA_002335235.1_ASM233523v1
+83655	Leclercia adecarboxylata	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/518/835/GCA_001518835.1_ASM151883v1
+1169337	Escherichia coli KTE18	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/352/145/GCA_000352145.1_Esch_coli_KTE18_V1
+889932	Lactobacillus plantarum subsp. plantarum ST-III	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/148/815/GCA_000148815.2_ASM14881v1
+1270	Micrococcus luteus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/061/825/GCA_001061825.1_ASM106182v1
+283786	Bizionia paragorgiae	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/107/625/GCA_900107625.1_IMG-taxon_2622736593_annotated_assembly
+1946677	Kurthia sp. UBA3380	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/359/015/GCA_002359015.1_ASM235901v1
+1123372	Thermodesulfobacterium hveragerdense DSM 12571	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/423/845/GCA_000423845.1_ASM42384v1
+1946882	Methylophaga sp. UBA3192	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/363/955/GCA_002363955.1_ASM236395v1
+1827502	Lentibacillus populi	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/642/895/GCA_014642895.1_ASM1464289v1
+1798449	Ignavibacteria bacterium RIFOXYC12_FULL_35_11	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/803/125/GCA_001803125.1_ASM180312v1
+1305772	Kingella kingae KK242	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/470/215/GCA_000470215.1_KK242
+1422001	Mycobacterium tuberculosis TB_RSA85	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/675/015/GCA_000675015.1_Myco_tube_TB_RSA85_V1
+41997	Enterococcus saccharolyticus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/886/235/GCA_001886235.1_ASM188623v1
+1797489	Betaproteobacteria bacterium RIFCSPLOWO2_02_FULL_65_24	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/770/435/GCA_001770435.1_ASM177043v1
+1950268	Bacillales bacterium UBA3789	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/369/415/GCA_002369415.1_ASM236941v1
+1952103	Lachnospiraceae bacterium UBA5452	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/427/405/GCA_002427405.1_ASM242740v1
+1655433	Candidatus Thiodiazotropha endolucinida	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/016/842/515/GCA_016842515.1_ASM1684251v1
+1951994	Lachnospiraceae bacterium UBA2816	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/351/595/GCA_002351595.1_ASM235159v1
+470150	Pseudomonas taiwanensis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/393/345/GCA_013393345.1_ASM1339334v1
+1244144	Enterococcus faecalis WKS-26-18-2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/415/385/GCA_000415385.2_ASM41538v2
+1391472	Enterococcus faecalis EnGen0402	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/519/465/GCA_000519465.1_Ente_faec_B289_V1
+887898	Lautropia mirabilis ATCC 51599	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/186/425/GCA_000186425.1_ASM18642v1
+2775920	Stenotrophomonas sp. CW117	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/844/015/GCA_014844015.1_ASM1484401v1
+1123288	Sporomusa ovata DSM 2662	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/423/685/GCA_000423685.1_ASM42368v1
+2750072	Candidatus Brennerbacteria bacterium	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/016/183/535/GCA_016183535.1_ASM1618353v1
+568703	Lactobacillus rhamnosus GG	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/011/045/GCA_000011045.1_ASM1104v1
+1948287	Verrucomicrobia bacterium UBA6888	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/449/065/GCA_002449065.1_ASM244906v1
+1392083	Staphylococcus aureus M1088	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/547/165/GCA_000547165.1_Stap_aure_M1088_V1
+1947554	Stenotrophomonas sp. UBA3238	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/362/895/GCA_002362895.1_ASM236289v1
+1388638	Staphylococcus aureus M0849	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/531/995/GCA_000531995.1_Stap_aure_M0849_V1
+1802123	Candidatus Ryanbacteria bacterium RIFCSPHIGHO2_12_FULL_47_12b	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/819/905/GCA_001819905.1_ASM181990v1
+1205752	Pseudomonas syringae BRIP39023	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/333/995/GCA_000333995.1_BRIP39023v2.0
+1970390	Hyphomicrobium sp. 32-62-53	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/280/885/GCA_002280885.1_ASM228088v1
+1522175	Aurantimonas endophytica	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/196/845/GCA_014196845.1_ASM1419684v1
+2498123	Campylobacter sp. US51	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/004/379/005/GCA_004379005.1_ASM437900v1
+411481	Bifidobacterium adolescentis L2-32	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/154/085/GCA_000154085.1_ASM15408v1
+1872447	Alkalibacterium sp.	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/454/485/GCA_003454485.1_ASM345448v1
+1975109	Candidatus Yonathbacteria bacterium CG17_big_fil_post_rev_8_21_14_2_50_46_19	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/771/095/GCA_002771095.1_ASM277109v1
+1797781	Candidatus Daviesbacteria bacterium RIFCSPHIGHO2_12_FULL_47_45	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/777/105/GCA_001777105.1_ASM177710v1
+2656769	Apibacter sp. B3912	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/009/827/805/GCA_009827805.1_ASM982780v1
+1422235	Staphylococcus aureus DAR1369	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/609/565/GCA_000609565.1_Stap_aure_DAR1369_V1
+2116657	Pulveribacter suum	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/013/695/GCA_003013695.1_ASM301369v1
+1953152	Bacteroidetes bacterium UBA2664	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/359/315/GCA_002359315.1_ASM235931v1
+1798251	Gallionellales bacterium RIFCSPHIGHO2_02_FULL_57_16	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/801/155/GCA_001801155.1_ASM180115v1
+1029825	Brucella melitensis NI	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/227/645/GCA_000227645.1_ASM22764v1
+1948504	Dehalococcoidia bacterium UBA5620	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/423/605/GCA_002423605.1_ASM242360v1
+1400941	Mycobacterium tuberculosis KT-0110	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/674/575/GCA_000674575.1_Myco_tube_KT-0110_V1
+157463	Fructobacillus ficulneus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/047/075/GCA_001047075.2_ASM104707v2
+2704140	Flavobacterium bizetiae	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/902/804/475/GCA_902804475.1_CIP105534
+1447714	Chlamydia trachomatis D/CS637/11	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/183/765/GCA_001183765.1_ASM118376v1
+2743979	Altererythrobacter sp. JGD-16	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/371/495/GCA_013371495.1_ASM1337149v1
+1765963	Deinococcus saudiensis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/640/655/GCA_014640655.1_ASM1464065v1
+178399	Marinomonas primoryensis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/013/372/285/GCA_013372285.1_ASM1337228v1
+1438845	Mycobacterium tuberculosis 2089HD	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/649/475/GCA_000649475.1_Myco_tube_2089HD_V1
+2382163	Streptococcus koreensis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/627/135/GCA_003627135.1_ASM362713v1
+2054608	Klebsiella sp. A-Nf5	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/810/545/GCA_002810545.1_ASM281054v1
+1281199	Escherichia coli UMEA 3161-1	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/460/455/GCA_000460455.1_Esch_coli_UMEA_3161-1_V1
+641118	Ochrobactrum intermedium LMG 3301	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/645/GCA_000182645.1_ASM18264v1
+1948509	Dehalococcoidia bacterium UBA6227	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/441/015/GCA_002441015.1_ASM244101v1
+1797392	Bdellovibrionales bacterium RIFOXYA1_FULL_38_20	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/769/995/GCA_001769995.1_ASM176999v1
+1948798	Patescibacteria group bacterium UBA2193	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/327/335/GCA_002327335.1_ASM232733v1
+263	Francisella tularensis	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/741/935/GCA_000741935.1_ASM74193v1
+1801829	Omnitrophica bacterium RIFCSPLOWO2_01_FULL_50_24	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/804/225/GCA_001804225.1_ASM180422v1
+2787121	Ruminococcus sp. 1001136B_160425_D2	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/015/552/475/GCA_015552475.1_ASM1555247v1
+1947947	Firmicutes bacterium UBA2209	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/327/245/GCA_002327245.1_ASM232724v1
+1075399	Blattabacterium sp. (Cryptocercus punctulatus) str. Cpu	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/236/405/GCA_000236405.1_ASM23640v1
+2057799	Anaerococcus sp. Marseille-P3915	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/258/475/GCA_900258475.1_PRJEB23406
+2483362	Marichromatium sp. AB31	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/718/685/GCA_003718685.1_ASM371868v1
+1388065	Staphylococcus aureus M0112	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/552/245/GCA_000552245.1_Stap_aure_M0112_V1
+1005561	Escherichia coli 5412	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/304/055/GCA_000304055.2_ASM30405v2
+1797597	Chlamydiae bacterium GWF2_49_8	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/796/105/GCA_001796105.1_ASM179610v1
+626932	Alistipes indistinctus	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/003/460/105/GCA_003460105.1_ASM346010v1
+171101	Streptococcus pneumoniae R6	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/007/045/GCA_000007045.1_ASM704v1
+1478199	Flavobacterium notoginsengisoli	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/014/207/905/GCA_014207905.1_ASM1420790v1
+1262746	Bacteroides sp. CAG:661	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/432/535/GCA_000432535.1_MGS661
+1950234	Bacillales bacterium UBA1106	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/314/035/GCA_002314035.1_ASM231403v1
+2005462	Calothrix sp. NIES-3974	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/368/395/GCA_002368395.1_ASM236839v1
+2008981	Pseudomonas sp. Irchel 3E19	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/187/585/GCA_900187585.1_3E19
+2751036	Lactobacillus sp. W8089	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/016/100/985/GCA_016100985.1_ASM1610098v1
+1660132	Pseudonocardia sp. SCN 73-27	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/725/415/GCA_001725415.1_ASM172541v1
+2726187	Novosphingobium sp. ERN07	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/012/641/335/GCA_012641335.1_ASM1264133v1
+402734	Flavobacterium terrigena	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/900/108/955/GCA_900108955.1_IMG-taxon_2600255390_annotated_assembly
+2020291	Candidatus Marithrix sp.	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/016/744/775/GCA_016744775.1_ASM1674477v1
+1802691	Candidatus Yanofskybacteria bacterium RIFCSPLOWO2_01_FULL_41_33	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/001/794/655/GCA_001794655.1_ASM179465v1
+1952362	Ruminococcaceae bacterium UBA4972	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/397/205/GCA_002397205.1_ASM239720v1
+1409495	Staphylococcus aureus MISS6048	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/539/955/GCA_000539955.1_Stap_aure_MISS6048_V1

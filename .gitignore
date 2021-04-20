@@ -13,6 +13,5 @@ src/GenBank_db/*
 
 ### WABI2021
 1_WABI_2021_CMash_manuscript/*
-!1_WABI_2021_CMash_manuscript/data/*
-
+!1_WABI_2021_CMash_manuscript/data/
 
