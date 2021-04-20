@@ -1,5 +1,5 @@
 # CMash-reproducibles
-For reproducibility analysis of [Cmash](https://github.com/dkoslicki/CMash) related tasks:
+For reproducibility analysis of [CMash](https://github.com/dkoslicki/CMash) related tasks:
 - [1. WABI 2021 CMash manuscript](#1_wabi_2021)
 - [2. CMash full paper](#2_cmash_full)
 
@@ -18,8 +18,8 @@ bash 0.install_all_required_dependency_run_once.sh
 
 
 ## 1. WABI 2021 CMash manuscript <a name="1_wabi_2021"></a>
-This is to reproduce the results in the [CMash manuscript for WABI 2021](no links now).
-### Please follow **Install dependencies** above first to install all required dependencies.
+This is to reproduce the results in the [CMash manuscript for WABI 2021](https://www.overleaf.com/project/6074afe80ace05a51a7e71e9).
+Please follow **Install dependencies** above first to install all required dependencies.
 
 
 
