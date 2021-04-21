@@ -29,9 +29,11 @@ mkdir -p ${final}/fig_1f_3_input
 
 
 
+date
 echo "1. Downloading genome files!!!!!!"
 sleep 2
 # download 30 Brucella data
+date
 echo "1.1 Downloading 30 Brucella data"
 for file in $(cut -f 3 ../data/Brucella_genus_30_genomes.txt); do
 	suffix=$(echo ${file##*/})
@@ -43,6 +45,7 @@ mkdir Brucella_30 \
 	&& readlink -f GCA*_genomic.fna.gz > ../fullpath_Brucella_30.txt \
 	&& cd ..
 
+date
 # download 1000 random genomes
 echo "1.2 Downloading 1000 random species"
 for file in $(cut -f 3 ../data/random_1k_genomes.txt); do
@@ -55,6 +58,7 @@ mkdir random_1000 \
 	&& readlink -f GCA*_genomic.fna.gz > ../fullpath_random_1000.txt \
 	&& cd ..
 
+date
 # download 200 genomes (from the 1000) for metagenomic simulation
 echo "1.3 Downloading 200 genomes for simulation"
 for file in $(cut -f 3 ../data/200_genomes_out_of_1000_for_simulation.txt); do
@@ -86,6 +90,7 @@ unset conda_path
 conda activate ${pipe_path}/conda_env/CMash_env_py37
 
 # BBMap simulation
+date
 echo "2.1 BBMap simulation"
 for depth in $(seq 2 2 20); do
 	randomreads.sh ref=merged_200_genomes.fa out=BB_simulated_meta_${depth}m.fq reads=${depth}m len=150 metagenome
@@ -97,6 +102,7 @@ mkdir fig3_CI_estimation \
 	&& cp fullpath_random_1000.txt fig3_CI_estimation \
 	&& cd fig3_CI_estimation 
 
+date
 echo "2.2 Getting CI estimation for all 1000 ref genomes in metagenomic reads"
 work_fig3=$PWD
 ref=$(readlink -f fullpath_random_1000.txt)
@@ -129,6 +135,7 @@ for file in $(ls BB_simulated_meta_*fq); do
 	cd ${work_fig3}
 done
 
+date
 echo "2.3 Collect time/space usage for CI estimation"
 echo -e "depth\tspace\ttotal_time\tref_time\trunning_time" > time_summary_trunc_CI.txt
 echo -e "depth\tspace\ttotal_time\tref_time\trunning_time" > time_summary_est_CI.txt
@@ -185,12 +192,19 @@ mv est_CI_results_*csv ./CI_outputs
 cp ./CI_outputs/*csv  ${final}/fig_1f_3_input
 cp time_summary_est_CI.txt ${final}/fig_1f_3_input
 cp time_summary_trunc_CI.txt ${final}/fig_1f_3_input
-
+# for fig3a, the cumusum of ref size
+cd $(ls -d CMash_output_* | head -1) \
+	&& ls -al trunc_CI_out/*tst | awk '{print $5}' > ../cum_space_trunc_CI.txt \
+	&& ls -al est_CI_out/*tst | awk '{print $5}' > ../cum_space_est_CI.txt \
+	&& cd .. \
+	&& cp cum_space_*txt ${final}/fig_1f_3_input
 
 
 
 
 ### Step3, pairwise JI from containment MinHash for 30 genomes in Brucella genus
+date
+echo "3. get pairwise JI for 30 genomes in Brucella genus"
 cd ${out_dir}
 mkdir fig2_JI_estimation
 cp fullpath_Brucella_30.txt ./fig2_JI_estimation
@@ -208,6 +222,8 @@ cd ${final}/fig_1f_2_input \
 
 
 ### Step4, genrating figures from output files
+date
+echo "4. generate figures"
 cd ${final}
 python ${pipe_path}/WABI_2021_generate_plots.py
 
