@@ -8,7 +8,7 @@ date
 [ -z $threads ] && threads=16
 ltime="/usr/bin/time -av -o temp_runLog"
 pipe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd ${pipe_path}/../1_RECOMB_2021/
+cd ${pipe_path}/../1_ISMB_2022/
 echo "Producing CMash results"
 echo "This step may take a long time, it might be better to use nohup"
 # the trunc_CI can be separate out from Bias_factor step to fasten the process
@@ -225,7 +225,7 @@ cd ${final}/fig_1f_2_input \
 date
 echo "4. generate figures"
 cd ${final}
-python ${pipe_path}/WABI_2021_generate_plots.py
+python ${pipe_path}/RECOMB_2021_generate_plots.py
 
 
 

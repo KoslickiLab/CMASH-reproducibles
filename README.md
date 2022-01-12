@@ -1,7 +1,7 @@
 # CMash-reproducibles
 For reproducibility analysis of [CMash](https://github.com/dkoslicki/CMash) related tasks:
-- [1. RECOMB 2021 CMash manuscrip](#1_recomb_2021)
-- [2. CMash full paper](#2_cmash_full)
+- [1. ISMB 2022 CMash manuscrip](#1_ismb_2022)
+- [2. CMash extended analysis (TBD)](#2_cmash_full)
 
 
 ## Install dependencies
@@ -23,18 +23,19 @@ bash uninstall.sh
 
 
 
-## 1. RECOMB 2021 CMash manuscript <a name="1_recomb_2021"></a>
-This is to reproduce the results in the [CMash manuscript for RECOMB 2021](https://www.overleaf.com/project/61666320f8392d53f75c1135).
+## 1. ISMB 2022 CMash manuscript <a name="1_ismb_2022"></a>
+This is to reproduce the results in the [CMash manuscript for ISMB 2022](https://www.overleaf.com/project/61d4d2cbcef26adceae0ad9e).
 Please follow **Install dependencies** above first to install all required dependencies.
 
 1. regenerate all the output data (may take more than 1 day)
 ```
 cd CMASH-reproducibles/src
-nohup bash 1.reproduce_RECOMB_2021_CMash_manuscript_results.sh  &  #accept 1 positional parameter for thread number (default 16)
+nohup bash 1.reproduce_ISMB_2022_CMash_manuscript_results.sh  &  
+#accept 1 positional parameter for thread number (default 16)
 ```
 2. find the results
 ```
-cd CMASH-reproducibles/1_WABI_2021_CMash_manuscript
+cd CMASH-reproducibles/1_ISMB_2022/
 ls -d CMash_out_*  #output folder: CMash_out_${time_tag}
 ```
 3. folder structure
@@ -46,6 +47,10 @@ ls -d CMash_out_*  #output folder: CMash_out_${time_tag}
 ```
 
 
+
+
+## 2. CMash extensions <a name="2_cmash_full"></a>
+1. Rush implementation
 
 
 

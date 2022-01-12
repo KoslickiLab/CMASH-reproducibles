@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 import math
 import statistics
+import string
 
 
 
@@ -72,27 +73,28 @@ def dict_to_df_by_k(input_dict, k_range):
 	return p_out
 
 
-
 ### For fig3 collect data and return the consistency matrix for fig3a
-def collect_ci_dif_data(k_range, name_key, cutoff=0.05):
-	out_df = pd.DataFrame()
+def updated_ci_df_for_box_3a(k_range, name_key):
+	# this will return a dict, key is the depth 2m/4m etc, each value is a df that stores the absolute difference
+	out_dict = dict()
 	for key in name_key:
+		df_key = pd.DataFrame()
 		f_name = "trunc_CI_results_" + key + ".csv"
+		# truncated CI file contains estimation for all k values (simoutaneously)
 		trunc_df = pd.read_csv(f_name, header=0, index_col=0)
-		temp_list = []
 		for k in k_range:
+			# now is the est_CI by classic minhash
 			f_name = "est_CI_results_" + key + "_k" + str(k) + ".csv"
 			temp_k_df = pd.read_csv(f_name, header=0, index_col=0)
 			temp_trunc_df = trunc_df[["k=" + str(k)]]
 			# remember to merge by colname: 2 files have different sort!!!
 			temp_check = pd.concat([temp_k_df, temp_trunc_df], axis=1, join="inner")
-			temp_list.append(sum(abs(temp_check.iloc[:, 0] - temp_check.iloc[:, 1]) <= cutoff) / 1000)
-		out_df[str(key)] = temp_list
-		out_df.index = k_range
+			df_key['k='+str(k)]=abs(temp_check.iloc[:, 0] - temp_check.iloc[:, 1])
+		# put depth_df to out_dict
+		out_dict[key] = df_key
 	
-	return out_df
-
-
+	return out_dict
+	
 
 ### generate figures
 ### get dif matrix and plot fig1f.left
@@ -179,7 +181,7 @@ def generate_fig1f_right(ref_size_list, trunc_time, est_time):
 def generate_fig2(df_trunc, df_gt, df_abs_dif, df_rela_dif):
 	# generate Fig2 from Trunc/GT processed matrix
 	fig, axs = plt.subplots(2, 2, figsize=(20, 20))
-	plt.rcParams.update({'font.size': 35})
+	plt.rcParams.update({'font.size': 12})
 	# ab: swarmplot of GT and Trunc JI
 	sb.swarmplot(data=df_gt, ax=axs[0,0], color="black", size=1, linewidth=0.3)
 	axs[0,0].set(ylabel="Ground truth Jaccard indices")
@@ -189,10 +191,10 @@ def generate_fig2(df_trunc, df_gt, df_abs_dif, df_rela_dif):
 	axs[0, 1].set_ylim([0, 1])
 	# cd: absolute error and relative error
 	sb.boxplot(data=df_abs_dif, ax=axs[1,0], color="black")
-	axs[1,0].set(ylabel="CMash - Ground truth")
+	axs[1,0].set(ylabel="CMash JI minus Ground truth JI")
 	axs[1,0].set_ylim([-0.3, 0.3])
 	sb.boxplot(data=df_rela_dif, ax=axs[1,1], color="black")
-	axs[1,1].set(ylabel="Relative error: CMash to Ground truth")
+	axs[1,1].set(ylabel="Relative error: CMash JI to Ground truth JI")
 	axs[1,1].set_ylim([-0.3, 0.3])
 	for i in [0,1]:
 		for j in [0,1]:
@@ -201,24 +203,98 @@ def generate_fig2(df_trunc, df_gt, df_abs_dif, df_rela_dif):
 	fig.savefig("Fig2_compare_trunc_gt_ji.png", dpi=200)
 	plt.close(fig)
 
-
-### Fig3a:
-def generate_fig3a(ci_accuracy):
-	# generate Fig3 from trunc_CI vs est_CI processed matrix
-	fig, axs = plt.subplots(1, 1, figsize=(36, 12))
-	plt.rcParams.update({'font.size': 40})
-	temp_df=ci_accuracy.copy()
-	temp_df['name']=['k='+str(x) for x in ci_accuracy.index]
-	temp_df.plot(x='name', y=list(ci_accuracy.columns), kind="bar", ax=axs)
-	axs.legend(bbox_to_anchor=(1.00, 1.02), title="Depth")
-	axs.set(xlabel=None)
-	axs.set_ylabel("Consistency ratio") # ,loc="top", rotation=0
-	plt.setp(axs.get_xticklabels(), rotation=0)
-	fig.savefig("Fig3a_compare_ci.png", dpi=200)
+def horizontal_fig2(df_trunc, df_gt, df_abs_dif, df_rela_dif, font=30, dpi=100):
+	# generate Fig2 from Trunc/GT processed matrix
+	fig, axs = plt.subplots(1,4, figsize=(40, 10))
+	plt.rcParams.update({'font.size': font})
+	# ab: swarmplot of GT and Trunc JI
+	sb.swarmplot(data=df_gt, ax=axs[0], color="black", size=1, linewidth=0.3)
+	axs[0].set(ylabel="Ground truth Jaccard indices")
+	axs[0].set_ylim([0, 1])
+	sb.swarmplot(data=df_trunc, ax=axs[1], color="black", size=1, linewidth=0.3)
+	axs[1].set(ylabel="CMash Jaccard indices")
+	axs[1].set_ylim([0, 1])
+	# cd: absolute error and relative error
+	sb.boxplot(data=df_abs_dif, ax=axs[2], color="black")
+	axs[2].set(ylabel="CMash JI minus Ground truth JI")
+	axs[2].set_ylim([-0.3, 0.3])
+	sb.boxplot(data=df_rela_dif, ax=axs[3], color="black")
+	axs[3].set(ylabel="Relative error: CMash JI to Ground truth JI")
+	axs[3].set_ylim([-0.3, 0.3])
+	letter_mark=['(a)','(b)','(c)','(d)']
+	for i in [0,1,2,3]:
+		plt.setp(axs[i].get_xticklabels(), rotation=45)
+		# add letter mark
+		axs[i].text(-0.1, 1.1, letter_mark[i], transform=axs[i].transAxes, size=20, weight='bold')
+	#fig.suptitle(plot_name)
+	fig.tight_layout()
+	fig.savefig("f2_horizontal.png", dpi=dpi)
 	plt.close(fig)
 
 
+def ismb_fig2(df_trunc, df_est, df_gt, df_trunc_abs_dif, df_trunc_rela_dif, df_est_abs_dif, df_est_rela_dif, font=30,
+              dpi=100):
+	# will put 3 separate figures first
+	# generate Fig2 from Est(MH)/Trunc(CMash)/GT matrix
+	# 2 figures: 1 + 4
+	plt.rcParams.update({'font.size': font})
+	
+	### part1: swarmplot GT only
+	fig, axs = plt.subplots(figsize=(10, 10))
+	sb.swarmplot(data=df_gt, ax=axs, color="black", size=1, linewidth=0.3)
+	axs.set(ylabel="Ground truth Jaccard indices")
+	axs.set_ylim([0, 1])
+	plt.setp(axs.get_xticklabels(), rotation=45)
+	# add letter mark
+	axs.text(-0.1, 1.1, '(a)', transform=axs.transAxes, size=20, weight='bold')
+	fig.tight_layout()
+	fig.savefig("f2_part1.png", dpi=dpi / 2)
+	plt.close(fig)
+	
+	### part2: 2x2, CMash vs GT, Est vs GT
+	fig, axs = plt.subplots(2, 2, figsize=(20, 20))
+	sb.boxplot(data=df_trunc_abs_dif, ax=axs[0, 0], color="black")
+	axs[0, 0].set(ylabel="CMash JI minus Ground truth JI")
+	axs[0, 0].set_ylim([-0.3, 0.3])
+	sb.boxplot(data=df_trunc_rela_dif, ax=axs[0, 1], color="black")
+	axs[0, 1].set(ylabel="Relative error: CMash JI to Ground truth JI")
+	axs[0, 1].set_ylim([-0.3, 0.3])
+	sb.boxplot(data=df_est_abs_dif, ax=axs[1, 0], color="black")
+	axs[1, 0].set(ylabel="MinHash JI minus Ground truth JI")
+	axs[1, 0].set_ylim([-0.3, 0.3])
+	sb.boxplot(data=df_est_rela_dif, ax=axs[1, 1], color="black")
+	axs[1, 1].set(ylabel="Relative error: MinHash JI to Ground truth JI")
+	axs[1, 1].set_ylim([-0.3, 0.3])
+	### letter mark
+	letter_mark = [['(b)', '(c)'], ['(d)', '(e)']]
+	for i in [0, 1]:
+		for j in [0, 1]:
+			plt.setp(axs[i, j].get_xticklabels(), rotation=45)
+			axs[i, j].text(-0.1, 1.1, letter_mark[i][j], transform=axs[i, j].transAxes, size=20, weight='bold')
+	fig.tight_layout()
+	fig.savefig("f2_part2.png", dpi=dpi)
+	plt.close(fig)
 
+
+### Fig3a
+def updated_fig3a_box(f3a_dict, dict_key, drop_last=True, font=25, dpi=100):
+	# generate box plot for a selected df (depth) in f3a_dict
+	fig, axs = plt.subplots(1, 1, figsize=(36, 12))
+	plt.rcParams.update({'font.size': font})
+	temp_df = f3a_dict[dict_key]
+	# last column is untruncated, do dropped
+	if drop_last:
+		temp_df=temp_df.iloc[: , :-1]
+	# generate box plot or swarmplot
+	sb.swarmplot(data=temp_df ,ax=axs, size=3, color="grey")
+	sb.boxplot(data=temp_df, ax=axs, color='bisque', showfliers = False)
+	axs.set_ylabel("Absolute difference in CI values")  # ,loc="top", rotation=0
+	axs.set(title='Boxplot for CMash CI vs MinHash CI')
+	axs.set_ylim([0, 0.08])
+	plt.setp(axs.get_xticklabels(), rotation=0)
+	fig.savefig("Fig3a_compare_ci.png", dpi=dpi)
+	plt.close(fig)
+	
 ### Fig3bcd:
 def generate_fig3bcd(ref_size_list, trunc_time, est_time):
 	fig, axs = plt.subplots(1, 3, figsize=(36, 12))
@@ -260,10 +336,37 @@ def generate_fig3bcd(ref_size_list, trunc_time, est_time):
 # local test
 def local_variable():
 	# activate local variables for test purpose
-	target_dir = "/Users/shaopeng/Desktop/final_output"
+	target_dir = "/Users/shaopeng/OneDrive - The Pennsylvania State University/PSU_academic/Koslicki_lab/publication/conference/WABI_2021"
 	os.chdir(target_dir)
 	os.listdir()
-
+	# refresh fig2
+	horizontal_fig2(df_trunc=df_trunc, df_gt=df_gt, df_abs_dif=abs_dif, df_rela_dif=rela_dif, font=30, dpi=100)
+	# refresh fig3a
+	updated_fig3a_box(f3a_dict=f3a_dict, dict_key='10m', font=30, dpi=200)
+	
+def code_storage():
+	### for CMash vs GT, Est vs GT box plot:
+	fig, axs = plt.subplots(1, 1, figsize=(36, 12))
+	temp_df = df_trunc_abs_dif
+	sb.swarmplot(data=temp_df, ax=axs, size=3, color="grey")
+	sb.boxplot(data=temp_df, ax=axs, color='bisque', showfliers=False)
+	axs.set_ylabel("Difference in JI values")  # ,loc="top", rotation=0
+	axs.set(title='Boxplot for CMash JI vs GroundTruth JI')
+	axs.set_ylim([-0.05, 0.05])
+	plt.setp(axs.get_xticklabels(), rotation=0)
+	fig.savefig("Fig2_add_ci.png", dpi=dpi)
+	plt.close(fig)
+	
+	fig, axs = plt.subplots(1, 1, figsize=(36, 12))
+	temp_df = df_est_abs_dif
+	sb.swarmplot(data=temp_df, ax=axs, size=3, color="grey")
+	sb.boxplot(data=temp_df, ax=axs, color='bisque', showfliers=False)
+	axs.set_ylabel("Difference in JI values")  # ,loc="top", rotation=0
+	axs.set(title='Boxplot for MinHash JI vs GroundTruth JI')
+	axs.set_ylim([-0.05, 0.05])
+	plt.setp(axs.get_xticklabels(), rotation=0)
+	fig.savefig("Fig2_add_mh.png", dpi=dpi)
+	plt.close(fig)
 
 
 # generate plots
@@ -285,12 +388,18 @@ if __name__ == '__main__':
 	df_gt = dict_to_df_by_k(dict_gt, k_sizes)
 	### for fig2b
 	df_trunc = dict_to_df_by_k(dict_trunc, k_sizes)
+	### Classic MH
+	df_est = dict_to_df_by_k(dict_est, k_sizes)
 	
 	# for fig3: read all csv/txt files
 	os.chdir(f3_dir)
 	filename_key=[str(x) + 'm' for x in list(range(2, 21, 2))] #those BBMap files
 	meta_ksizes = [20, 25, 30, 35, 40, 45, 50, 55, 60]  # for fig3
-	ci_accuracy = collect_ci_dif_data(k_range=meta_ksizes, name_key=filename_key, cutoff=0.05)
+	
+	# fig3a box data
+	f3a_dict = updated_ci_df_for_box_3a(k_range=meta_ksizes, name_key=filename_key)
+	
+	
 	### the cumsum of ref size
 	ref_size_list = list(pd.read_table("cum_space_est_CI.txt", header=None).iloc[:,0]) #total trunc size is the last element in est_CI ref size
 	ref_size_list = [math.ceil(x/1024/1024) for x in ref_size_list] #change to MB
@@ -301,13 +410,23 @@ if __name__ == '__main__':
 	# ready for plot
 	os.chdir(out_dir)
 	### fig1f.left
+	### for CMash vs GT
 	[abs_dif, rela_dif] = get_dif_matrix_and_fig1f(dict_trunc, dict_gt, k_sizes)
+	
+	### for Est vs GT
+	[est_abs_dif, est_rela_dif] = get_dif_matrix_and_fig1f(dict_est, dict_gt, k_sizes)
+	
+	
 	### fig1f.right
 	generate_fig1f_right(ref_size_list=ref_size_list, trunc_time=trunc_time, est_time=est_time)
 	### fig2
-	generate_fig2(df_trunc=df_trunc, df_gt=df_gt, df_abs_dif=abs_dif, df_rela_dif=rela_dif)
+	#generate_fig2(df_trunc=df_trunc, df_gt=df_gt, df_abs_dif=abs_dif, df_rela_dif=rela_dif)
+	#horizontal_fig2(df_trunc=df_trunc, df_gt=df_gt, df_abs_dif=abs_dif, df_rela_dif=rela_dif)
+	ismb_fig2(df_trunc=df_trunc, df_est=df_est, df_gt=df_gt, df_trunc_abs_dif=abs_dif, df_trunc_rela_dif=rela_dif,
+	          df_est_abs_dif=est_abs_dif, df_est_rela_dif=est_rela_dif)
 	### fig3a
-	generate_fig3a(ci_accuracy=ci_accuracy)
+	updated_fig3a_box(f3a_dict=f3a_dict, dict_key='10m')
+	
 	### fig3bcd
 	generate_fig3bcd(ref_size_list=ref_size_list, trunc_time=trunc_time, est_time=est_time)
 	
@@ -315,10 +434,18 @@ if __name__ == '__main__':
 	print("Ploting finished")
 	
 	
+
+
+
 	
-	
+
+
+
+
 	
 	
 	
 
 
+	
+	
