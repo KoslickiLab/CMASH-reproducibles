@@ -225,7 +225,7 @@ cd ${final}/fig_1f_2_input \
 date
 echo "4. generate figures"
 cd ${final}
-python ${pipe_path}/RECOMB_2021_generate_plots.py
+python ${pipe_path}/generate_manuscript_plot.py
 
 
 
