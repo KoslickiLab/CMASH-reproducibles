@@ -26,7 +26,8 @@ out_dir=$PWD
 final=${out_dir}/final_output
 mkdir -p ${final}/fig_1f_2_input
 mkdir -p ${final}/fig_1f_3_input
-
+mkdir -p ${final}/sup_f3_input
+mkdir -p ${final}/sup_f4_input
 
 
 date
@@ -222,12 +223,56 @@ cd ${final}/fig_1f_2_input \
 
 ### Step4, compare CMash to Sourmash (JI) and Mash Screen (CI)
 echo "4. compare CMash to Sourmash (JI) and Mash Screen (CI)"
+
+### 4.1 Sourmash JI
 cd ${out_dir}
+mkdir sup_f3_compare_sourmash_mashscreen
+# build signatures for Sourmash
+cd Brucella_30
+for file in $(ls *fna.gz); do
+	sourmash compute -k 15,20,25,30,35,40,45,50,55,60 -n 2000 $file
+done
+mv *sig  ${out_dir}/sup_f3_compare_sourmash_mashscreen
+cd ${out_dir}/sup_f3_compare_sourmash_mashscreen
+# get JI estimates by sourmash
+for ((i=15; i<=60; i+=5))
+do
+	#echo $i
+	sourmash compare -k ${i} --csv sourmash_output_k${i}.csv *sig
+done
+cp sourmash_output*csv ${final}/sup_f3_input
+
+### 4.2 Mash Screen CI
+cd ${out_dir}/random_1000
+# note Mash only supports k ranging from 1~32
+for ((i=15; i<=30; i+=5))
+do
+	#echo $i
+	mash sketch -o ref_rand_1000_k${i} -s 2000  -k ${i}  *fna.gz
+done
+mv ref_rand_1000_*.msh  ${out_dir}/sup_f3_compare_sourmash_mashscreen
+cd ${out_dir}/sup_f3_compare_sourmash_mashscreen
+### screen
+for ((i=15; i<=30; i+=5))
+do
+	mash screen ref_rand_1000_k${i}.msh ${out_dir}/fig3_CI_estimation/BB_simulated_meta_10m.fq  > mash_screen_k${i}.tab
+done
+cp mash_screen_k*tab ${final}/sup_f3_input
 
 
 
 
 ### Step5, empirical distribution of bias factods
+echo "5. Empirical distribution of bias factor"
+cd ${out_dir}/
+mkdir sup_f4_BF_distri
+# generate random group of genomes of size 10 (for speed purpose)
+for ((i=1; i<=10; i++))
+do
+	shuf --random-source=<(yes ${i}) fullpath_random_1000.txt | head > sup_f4_BF_distri/random_sample_${i}_of_10genomes.txt
+done
+# calculate bias factor
+### need to finish this part
 
 
 

@@ -34,6 +34,8 @@ conda install -y -c bioconda kmc
 conda install -y -c bioconda taxonkit
 conda install -y -c bioconda insilicoseq
 conda install -y -c bioconda bbmap
+conda install -y -c bioconda sourmash
+conda install -y -c bioconda mash
 conda deactivate
 
 
