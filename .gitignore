@@ -15,3 +15,8 @@ src/GenBank_db/*
 1_WABI_2021_CMash_manuscript/*
 !1_WABI_2021_CMash_manuscript/data/
 
+
+### local test
+local_test/*
+
+
