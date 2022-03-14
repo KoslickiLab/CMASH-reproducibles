@@ -212,7 +212,7 @@ cd fig2_JI_estimation
 file_name=$(readlink -f fullpath_Brucella_30.txt)
 python  ${pipe_path}/CMash_python_wrapper_of_CMash_github_to_perform_prefix_tree_bias_analysis.py -q ${file_name} -r ${file_name} -o True -t ${threads}
 find . -name "*JI*csv" | xargs cp -t ${final}/fig_1f_2_input
-# trunc_JI_k60 is equivalent to est_JI_k60 because no truncation heppened
+# trunc_JI_k60 is equivalent to est_JI_k60 because no truncation happened
 cd ${final}/fig_1f_2_input \
 	&& cp est_JI_k60.csv trunc_JI_k60.csv
 
@@ -220,10 +220,21 @@ cd ${final}/fig_1f_2_input \
 
 
 
+### Step4, compare CMash to Sourmash (JI) and Mash Screen (CI)
+echo "4. compare CMash to Sourmash (JI) and Mash Screen (CI)"
+cd ${out_dir}
 
-### Step4, genrating figures from output files
+
+
+
+### Step5, empirical distribution of bias factods
+
+
+
+
+### Step6, genrating figures from output files
 date
-echo "4. generate figures"
+echo "6. generate figures"
 cd ${final}
 python ${pipe_path}/generate_manuscript_plot.py
 
