@@ -1,0 +1,15 @@
+GCA_000187145.1_ASM18714v1_genomic.fna.gz
+GCA_000528975.1_Stap_aure_M0730_V1_genomic.fna.gz
+GCA_000538175.1_Stap_aure_SMMC0005_V1_genomic.fna.gz
+GCA_000540955.1_Stap_aure_SJUD6110_V1_genomic.fna.gz
+GCA_000543865.1_Stap_aure_M0801_V1_genomic.fna.gz
+GCA_000559245.1_Stap_aure_T45974_V1_genomic.fna.gz
+GCA_000560705.1_Stap_aure_T47181_V1_genomic.fna.gz
+GCA_000562045.1_Stap_aure_H45765_V1_genomic.fna.gz
+GCA_000562915.1_Stap_aure_T12805_V1_genomic.fna.gz
+GCA_000563995.1_Stap_aure_T33147_V1_genomic.fna.gz
+GCA_000571735.1_Stap_aure_F26884_V1_genomic.fna.gz
+GCA_000578235.1_Stap_aure_F63786_V1_genomic.fna.gz
+GCA_000578315.1_Stap_aure_T77618_V1_genomic.fna.gz
+GCA_000587095.1_Stap_aure_T32086_V1_genomic.fna.gz
+GCA_000606265.1_Stap_aure_F48603_V1_genomic.fna.gz

@@ -36,6 +36,7 @@ conda install -y -c bioconda insilicoseq
 conda install -y -c bioconda bbmap
 conda install -y -c bioconda sourmash
 conda install -y -c bioconda mash
+conda install -y -c bioconda sra-tools
 conda deactivate
 
 

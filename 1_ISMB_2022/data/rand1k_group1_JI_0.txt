@@ -1,0 +1,10 @@
+GCA_002351655.1_ASM235165v1_genomic.fna.gz
+GCA_000417695.2_ASM41769v2_genomic.fna.gz
+GCA_004006315.1_ASM400631v1_genomic.fna.gz
+GCA_000221465.1_ASM22146v1_genomic.fna.gz
+GCA_002413265.1_ASM241326v1_genomic.fna.gz
+GCA_002316915.1_ASM231691v1_genomic.fna.gz
+GCA_000236405.1_ASM23640v1_genomic.fna.gz
+GCA_000026705.1_ASM2670v1_genomic.fna.gz
+GCA_002455365.1_ASM245536v1_genomic.fna.gz
+GCA_000478465.2_Pseu_aeru_Stone_130_V1_genomic.fna.gz

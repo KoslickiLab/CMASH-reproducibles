@@ -1,0 +1,10 @@
+GCA_000163235.1_ASM16323v1_genomic.fna.gz
+GCA_000304075.2_ASM30407v2_genomic.fna.gz
+GCA_000352425.1_Esch_coli_KTE78_V1_genomic.fna.gz
+GCA_000408245.1_Esch_coli_KTE222_V1_genomic.fna.gz
+GCA_000408585.1_Esch_coli_KTE102_V1_genomic.fna.gz
+GCA_000492235.1_Esch_coli_BIDMC_39_V1_genomic.fna.gz
+GCA_000565525.1_ASM56552v1_genomic.fna.gz
+GCA_000566505.1_ASM56650v1_genomic.fna.gz
+GCA_000616245.1_Ec2011C.3537_genomic.fna.gz
+GCA_000617805.2_Ec2010C.4592_genomic.fna.gz

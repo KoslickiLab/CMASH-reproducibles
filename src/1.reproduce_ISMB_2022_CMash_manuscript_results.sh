@@ -28,7 +28,7 @@ mkdir -p ${final}/fig_1f_2_input
 mkdir -p ${final}/fig_1f_3_input
 mkdir -p ${final}/sup_f3_input
 mkdir -p ${final}/sup_f4_input
-
+mkdir -p ${final}/sup_f2_input
 
 date
 echo "1. Downloading genome files!!!!!!"
@@ -108,6 +108,8 @@ echo "2.2 Getting CI estimation for all 1000 ref genomes in metagenomic reads"
 work_fig3=$PWD
 ref=$(readlink -f fullpath_random_1000.txt)
 temp_range=15-60-5
+# note: in practice it's not necessary to build the trainingDB for multiple times in the loop
+# we intentionally did this to measure the time for each analysis to make the comparison more straightforward
 for file in $(ls BB_simulated_meta_*fq); do
 	meta=$(readlink -f ${file})
 	mkdir CMash_output_${file}
@@ -200,6 +202,9 @@ cd $(ls -d CMash_output_* | head -1) \
 	&& cd .. \
 	&& cp cum_space_*txt ${final}/fig_1f_3_input
 
+# also cp the 200 genome lists for sup figure 3
+cd ${out_dir}
+cut -f 3 ../data/200_genomes_out_of_1000_for_simulation.txt | sed 's|ftp.*/GCA|GCA|g' > ${final}/fig_1f_3_input/record_200_genomes.txt
 
 
 
@@ -221,19 +226,47 @@ cd ${final}/fig_1f_2_input \
 
 
 
-### Step4, compare CMash to Sourmash (JI) and Mash Screen (CI)
-echo "4. compare CMash to Sourmash (JI) and Mash Screen (CI)"
 
-### 4.1 Sourmash JI
+## Step4, Sup2: use CMash in real data for metagenomic profiling
+echo "4. Use CMash for metagenomic profiling"
 cd ${out_dir}
-mkdir sup_f3_compare_sourmash_mashscreen
+mkdir sup_f2_cmash_profile
+cd sup_f2_cmash_profile
+### use the current ref for speed purpose
+ref_file="../fig3_CI_estimation/CMash_output_BB_simulated_meta_10m.fq/trunc_CI_out/TrainingDB_k60.h5"
+### download SRA data: SRR1804890 from study SRX877425
+target_accession="SRR1804890"
+fastq-dump --split-3 ${target_accession}
+### there should be 1 (single) or 2 (paired) fastq files, but we don't care the pair -> directly merge them
+cat ${target}_1.fastq  ${target}_2.fastq > merged_fastq_file.fq
+StreamingQueryDNADatabase.py -c 0 -l 0 -t ${threads} --sensitive  merged_fastq_file.fq  ${ref_file}  sup_f2_trunc_CI_results.csv  15-60-5
+### mv results
+cp sup_f2_trunc_CI_results.csv ${final}/sup_f2_input
+
+
+
+
+
+
+
+
+
+
+
+
+### Step5, Sup3: compare CMash to Sourmash (JI) and Mash Screen (CI)
+echo "5. compare CMash to Sourmash (JI) and Mash Screen (CI)"
+
+### 5.1 Sourmash JI
+cd ${out_dir}
+mkdir sup_f3_compare_sourmash_mash
 # build signatures for Sourmash
 cd Brucella_30
 for file in $(ls *fna.gz); do
 	sourmash compute -k 15,20,25,30,35,40,45,50,55,60 -n 2000 $file
 done
-mv *sig  ${out_dir}/sup_f3_compare_sourmash_mashscreen
-cd ${out_dir}/sup_f3_compare_sourmash_mashscreen
+mv *sig  ${out_dir}/sup_f3_compare_sourmash_mash
+cd ${out_dir}/sup_f3_compare_sourmash_mash
 # get JI estimates by sourmash
 for ((i=15; i<=60; i+=5))
 do
@@ -242,37 +275,64 @@ do
 done
 cp sourmash_output*csv ${final}/sup_f3_input
 
-### 4.2 Mash Screen CI
-cd ${out_dir}/random_1000
-# note Mash only supports k ranging from 1~32
-for ((i=15; i<=30; i+=5))
+### 5.2 Mash Screen CI
+cd ${out_dir}/Brucella_30
+# build signatures for Mash
+for ((k=15; k<=30; k+=5));
 do
-	#echo $i
-	mash sketch -o ref_rand_1000_k${i} -s 2000  -k ${i}  *fna.gz
+	echo $k
+	mash sketch -o mash_sketch_brucella_k${k} -s 2000 -k ${k}  *fna.gz
+        mash dist mash_sketch_brucella_k${k}.msh mash_sketch_brucella_k${k}.msh > pairwise_JI_from_Mash_k${k}.txt	
 done
-mv ref_rand_1000_*.msh  ${out_dir}/sup_f3_compare_sourmash_mashscreen
-cd ${out_dir}/sup_f3_compare_sourmash_mashscreen
-### screen
-for ((i=15; i<=30; i+=5))
-do
-	mash screen ref_rand_1000_k${i}.msh ${out_dir}/fig3_CI_estimation/BB_simulated_meta_10m.fq  > mash_screen_k${i}.tab
-done
-cp mash_screen_k*tab ${final}/sup_f3_input
+mv mash_sketch_brucella_k*msh ${out_dir}/sup_f3_compare_sourmash_mash
+cp pairwise_JI_from_Mash_k*txt ${out_dir}/sup_f3_compare_sourmash_mash
+mv pairwise_JI_from_Mash_k*txt ${final}/sup_f3_input
+
+
+### CI comparison code, but seems not necessary
+# cd ${out_dir}/random_1000
+# # note Mash only supports k ranging from 1~32
+# for ((i=15; i<=30; i+=5))
+# do
+# 	#echo $i
+# 	mash sketch -o ref_rand_1000_k${i} -s 2000  -k ${i}  *fna.gz
+# done
+# mv ref_rand_1000_*.msh  ${out_dir}/sup_f3_compare_sourmash_mash
+# cd ${out_dir}/sup_f3_compare_sourmash_mash
+# ### screen
+# for ((i=15; i<=30; i+=5))
+# do
+# 	mash screen ref_rand_1000_k${i}.msh ${out_dir}/fig3_CI_estimation/BB_simulated_meta_10m.fq  > mash_screen_k${i}.tab
+# done
+# cp mash_screen_k*tab ${final}/sup_f3_input
 
 
 
 
-### Step5, empirical distribution of bias factods
-echo "5. Empirical distribution of bias factor"
+### Step6, empirical distribution of bias factods
+echo "6. Empirical distribution of bias factor"
 cd ${out_dir}/
 mkdir sup_f4_BF_distri
 # generate random group of genomes of size 10 (for speed purpose)
-for ((i=1; i<=10; i++))
+# how we get the random sample:
+# shuf --random-source=<(yes 1) fullpath_random_1000.txt | head | sed 's|/data.*GCA|GCA|g' > sup_f4_BF_distri/rand1k_group1_JI_0.txt
+cp ../data/rand1k_group1*.txt ./sup_f4_BF_distri/
+cd ./sup_f4_BF_distri/
+for file_name in $(ls rand1k_group1_JI*txt); 
 do
-	shuf --random-source=<(yes ${i}) fullpath_random_1000.txt | head > sup_f4_BF_distri/random_sample_${i}_of_10genomes.txt
+	echo "Processing bias factor for $file_name"
+	echo "This step is very slow......"
+	grep -f ${file_name} ../fullpath_random_1000.txt > temp_path_genomes.txt
+	python ${pipe_path}/CMash_python_wrapper_of_CMash_github_to_perform_prefix_tree_bias_analysis.py -q temp_path_genomes.txt -r temp_path_genomes.txt  -t ${threads} -g 20-60-10 
+	mkdir bf_output_${file_name}
+	mv bias_factor_*csv ./bf_output_${file_name}
+	mv est_JI*csv ./bf_output_${file_name}
+	mv GroundTruth_JI*csv ./bf_output_${file_name}
+	mv trunc_JI*csv ./bf_output_${file_name}
+	cp -r bf_output_${file_name} ${final}/sup_f4_input/bf_output_${file_name}
+	rm temp_path_genomes.txt
 done
-# calculate bias factor
-### need to finish this part
+
 
 
 
@@ -296,3 +356,4 @@ echo "Whole pipe done!"
 
 
 
+# get
