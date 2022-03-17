@@ -44,13 +44,18 @@ ls -d CMash_out_*  #output folder: CMash_out_${time_tag}
 # fig2_JI_estimation: intermediate outputs for pairwise JI estimation within Brucella genus
 # fig3_CI_estimation: intermediate outputs for containment estimation of 1000 random genomes in the simulated metagenomic data
 # Brucella_30 / random_1000 / simulation_200: downloaded genome files
+# sup_f2_cmash_profile:  intermediate outputs for CMash profiling of one real world data for supplementary figure S2
+# sup_f3_compare_sourmash_mash: intermediate outputs for comparison of CMash, Sourmash, and Mash for supplementary figure S3
+# sup_f4_BF_distri: intermediate outputs for bias factor measurements for supplementary figure S4
 ```
 
 
 
 
 ## 2. CMash extensions <a name="2_cmash_full"></a>
-1. Rush implementation
+1. Rush implementation  
+2. Explore metagenomic dark matter  
+3. JI as function of k related to evolutionary distances  
 
 
 
